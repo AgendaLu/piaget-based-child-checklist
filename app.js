@@ -3,8 +3,8 @@
 // 主應用邏輯：初始化、月齡計算、
 // 時間軸渲染、任務卡渲染
 // ─────────────────────────────────────────
-import { MILESTONES, DOMAIN_META } from '../data/milestones.js';
-import { PIAGET_KEY_MAP, PIAGET_DATA } from '../data/piaget.js';
+import { MILESTONES, DOMAIN_META } from './milestones.js';
+import { PIAGET_KEY_MAP, PIAGET_DATA } from './piaget.js';
 import { openPiagetDrawer } from './drawer.js';
 
 // ── 狀態 ──────────────────────────────────
@@ -71,20 +71,18 @@ export function initApp() {
 
   // Topbar
   document.getElementById('display-name').textContent       = name;
-  document.getElementById('display-age').textContent        = `${age.months}m ${age.weeks}w`;
-  document.getElementById('display-age-exact').textContent  = `${age.months}個月 ${age.weeks}週`;
+  document.getElementById('display-age').textContent        = `${age.months}個月`;
+  document.getElementById('display-age-exact').textContent  = `${age.weeks}週`;
 
-  // Progress strip
-  const pct = Math.min(100, (age.months / 24) * 100);
-  document.getElementById('progress-fill').style.width  = pct + '%';
+  // Stage info in timeline bar
   document.getElementById('current-stage-label').textContent = milestone.stageLabel;
 
   const next = MILESTONES[Math.min(idx + 1, MILESTONES.length - 1)];
   const daysToNext = Math.max(0, Math.floor(next.monthStart * 30.44 - age.totalDays));
   document.getElementById('progress-desc').textContent =
     idx < MILESTONES.length - 1
-      ? `距離下一個發展階段（${next.label}）還有 ${daysToNext} 天`
-      : '已達24個月追蹤完成，請繼續觀察幼兒發展';
+      ? `距離下一階段（${next.label}）還有 ${daysToNext} 天`
+      : '已達24個月追蹤完成';
 
   // Alert
   const alertEl = document.getElementById('alert-strip');
@@ -101,117 +99,163 @@ export function initApp() {
     `${pd.piagetStage} · ${pd.piagetSub}`;
 
   renderTimeline(idx);
+  initThumbDrag();
   renderTodoCard(idx, age, 'current');
   renderUpcoming(idx);
 }
 
 // ─────────────────────────────────────────
-// Timeline
+// Timeline — continuous track with snap thumb
 // ─────────────────────────────────────────
-function renderTimeline(currentIdx) {
-  // 收合狀態的進度條
-  const pct = Math.min(100, (currentIdx / (MILESTONES.length - 1)) * 100);
-  const fill   = document.getElementById('tl-fill');
-  const cursor = document.getElementById('tl-cursor');
-  if (fill)   fill.style.width   = pct + '%';
-  if (cursor) cursor.style.left  = pct + '%';
+let activeViewIdx = -1; // which node the thumb is viewing
 
-  // 節點列
-  const container = document.getElementById('tl-nodes');
-  if (!container) return;
-  container.innerHTML = '';
+function getNodePct(i) {
+  return MILESTONES.length <= 1 ? 0 : (i / (MILESTONES.length - 1)) * 100;
+}
+
+function renderTimeline(currentIdx) {
+  const nodesLayer = document.getElementById('tl-nodes');
+  const labelsRow  = document.getElementById('tl-labels');
+  const fill       = document.getElementById('tl-track-fill');
+  if (!nodesLayer) return;
+  nodesLayer.innerHTML = '';
+  labelsRow.innerHTML  = '';
+
+  // Fill track up to current
+  fill.style.width = getNodePct(currentIdx) + '%';
 
   MILESTONES.forEach((m, i) => {
-    const isActive  = (i === currentIdx);
-    const stateClass = i < currentIdx ? 'state-past'
-                     : i === currentIdx ? 'state-current'
-                     : 'state-future';
-
-    // 補填狀態：past 階段若有任何 retro 記錄，升格為 state-retro
-    let finalState = stateClass;
+    let state = i < currentIdx ? 'past' : i === currentIdx ? 'current' : 'future';
     if (i < currentIdx) {
       const saved = JSON.parse(localStorage.getItem(`checks_${i}`) || '{}');
-      const hasRetro = Object.values(saved).some(v => v === 'retro');
-      if (hasRetro) finalState = 'state-retro';
+      if (Object.values(saved).some(v => v === 'retro')) state = 'retro';
     }
 
-    // 達成數
     const saved = JSON.parse(localStorage.getItem(`checks_${i}`) || '{}');
-    const doneCount = Object.values(saved).filter(v => v === 'normal' || v === 'retro').length;
+    const doneCount  = Object.values(saved).filter(v => v === 'normal' || v === 'retro').length;
     const totalItems = Object.values(m.domains).flat().length;
 
-    const node = document.createElement('div');
-    node.className = `tl-node ${finalState}${isActive ? ' active' : ''}`;
-    node.dataset.idx = i;
+    // Dot on the track
+    const dot = document.createElement('div');
+    dot.className = `tl-dot tl-dot--${state}`;
+    dot.style.left = getNodePct(i) + '%';
+    dot.dataset.idx = i;
 
-    // 連接線（最後一個節點不加）
-    const connector = i < MILESTONES.length - 1
-      ? `<div class="tl-connector"></div>` : '';
+    if (i < currentIdx) {
+      dot.innerHTML = `<svg width="8" height="6" viewBox="0 0 8 6" fill="none">
+        <path d="M1 3l2 2 4-4" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>`;
+    }
 
-    // 節點圓點（past 加勾號）
-    const checkmark = (i < currentIdx)
-      ? `<svg width="8" height="6" viewBox="0 0 8 6" fill="none">
-           <path d="M1 3l2 2 4-4" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-         </svg>` : '';
+    dot.addEventListener('click', (e) => { e.stopPropagation(); snapThumbTo(i); });
+    nodesLayer.appendChild(dot);
 
-    const subText = i < currentIdx ? `${doneCount}/${totalItems}`
-                  : i === currentIdx ? '目前' : '';
-
-    node.innerHTML = `
-      ${connector}
-      <div class="tl-circle">${checkmark}</div>
-      <div class="tl-node-label">${m.label}</div>
-      <div class="tl-node-sub">${subText}</div>
+    // Label below
+    const label = document.createElement('div');
+    label.className = `tl-label-item tl-label--${state}`;
+    label.style.left = getNodePct(i) + '%';
+    label.innerHTML = `
+      <span class="tl-label-name">${m.label}</span>
+      <span class="tl-label-sub">${i < currentIdx ? doneCount + '/' + totalItems : i === currentIdx ? '目前' : ''}</span>
     `;
+    label.addEventListener('click', () => snapThumbTo(i));
+    labelsRow.appendChild(label);
+  });
 
-    node.addEventListener('click', () => onTimelineNodeClick(i));
-    container.appendChild(node);
+  // Position thumb at current milestone
+  activeViewIdx = currentIdx;
+  positionThumb(currentIdx, false);
+}
+
+function positionThumb(idx, animate = true) {
+  const thumb = document.getElementById('tl-thumb');
+  const label = document.getElementById('tl-thumb-label');
+  if (!thumb) return;
+
+  thumb.style.transition = animate ? 'left 0.35s cubic-bezier(0.4,0,0.2,1)' : 'none';
+  thumb.style.left = getNodePct(idx) + '%';
+
+  const m = MILESTONES[idx];
+  label.textContent = m.label;
+
+  // Update dot active states
+  document.querySelectorAll('.tl-dot').forEach((d, i) => {
+    d.classList.toggle('tl-dot--active', i === idx);
+  });
+  document.querySelectorAll('.tl-label-item').forEach((l, i) => {
+    l.classList.toggle('tl-label--active', i === idx);
   });
 }
 
-function onTimelineNodeClick(idx) {
+function snapThumbTo(idx) {
+  if (idx === activeViewIdx) return;
+  activeViewIdx = idx;
+  positionThumb(idx, true);
+
   const type = idx < currentMilestoneIndex ? 'past'
-             : idx === currentMilestoneIndex ? 'current'
-             : 'future';
-
+             : idx === currentMilestoneIndex ? 'current' : 'future';
   const age = calcAge(localStorage.getItem('baby_dob'));
-
-  // 更新節點 active 狀態
-  document.querySelectorAll('.tl-node').forEach((n, i) => {
-    n.classList.toggle('active', i === idx);
-  });
-
   renderTodoCard(idx, age, type);
+}
 
-  // 如果是目前節點，scroll 到任務卡
-  if (type === 'current') {
-    document.getElementById('todo-card')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+// ── Drag logic ──
+function initThumbDrag() {
+  const thumb  = document.getElementById('tl-thumb');
+  const slider = document.getElementById('tl-slider');
+  if (!thumb || !slider) return;
+
+  let dragging = false;
+
+  function getIdxFromX(clientX) {
+    const rect = slider.getBoundingClientRect();
+    const pct  = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    // Snap to nearest node
+    const raw  = pct * (MILESTONES.length - 1);
+    return Math.round(raw);
   }
+
+  function onStart(e) {
+    dragging = true;
+    thumb.classList.add('tl-thumb--dragging');
+    e.preventDefault();
+  }
+  function onMove(e) {
+    if (!dragging) return;
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const idx = getIdxFromX(clientX);
+    if (idx !== activeViewIdx) {
+      activeViewIdx = idx;
+      positionThumb(idx, false);
+    }
+  }
+  function onEnd() {
+    if (!dragging) return;
+    dragging = false;
+    thumb.classList.remove('tl-thumb--dragging');
+    // Trigger card update
+    const type = activeViewIdx < currentMilestoneIndex ? 'past'
+               : activeViewIdx === currentMilestoneIndex ? 'current' : 'future';
+    const age = calcAge(localStorage.getItem('baby_dob'));
+    renderTodoCard(activeViewIdx, age, type);
+  }
+
+  thumb.addEventListener('mousedown', onStart);
+  thumb.addEventListener('touchstart', onStart, { passive: false });
+  window.addEventListener('mousemove', onMove);
+  window.addEventListener('touchmove', onMove, { passive: false });
+  window.addEventListener('mouseup', onEnd);
+  window.addEventListener('touchend', onEnd);
+
+  // Also allow clicking on the track itself
+  slider.addEventListener('click', (e) => {
+    if (e.target.closest('.tl-thumb')) return;
+    const idx = getIdxFromX(e.clientX);
+    snapThumbTo(idx);
+  });
 }
 
 export function toggleTimeline() {
-  timelineOpen = !timelineOpen;
-  const expanded  = document.getElementById('tl-expanded');
-  const expandBtn = document.getElementById('tl-expand-btn');
-
-  expanded?.classList.toggle('open', timelineOpen);
-  expandBtn?.classList.toggle('open', timelineOpen);
-
-  const label = document.getElementById('tl-expand-label');
-  if (label) label.textContent = timelineOpen ? '收合時間軸' : '展開時間軸';
-
-  if (timelineOpen) {
-    // scroll 至目前節點置中
-    setTimeout(() => {
-      const scroll  = document.getElementById('tl-scroll');
-      const nodes   = document.getElementById('tl-nodes');
-      const current = nodes?.children[currentMilestoneIndex];
-      if (scroll && current) {
-        const left = current.offsetLeft - scroll.offsetWidth / 2 + current.offsetWidth / 2;
-        scroll.scrollTo({ left, behavior: 'smooth' });
-      }
-    }, 60);
-  }
+  // no-op — timeline is always visible now
 }
 
 // ─────────────────────────────────────────
@@ -223,7 +267,7 @@ function renderTodoCard(idx, age, type) {
   if (!card) return;
 
   // 任務卡上緣色條
-  card.className = `todo-card fade-in is-${type}`;
+  card.className = `todo-card bg-surface-container-low rounded-xl shadow-elevation-1 p-6 mb-6 animate-fade-up is-${type}`;
 
   // 標題列
   document.getElementById('todo-title').textContent =
