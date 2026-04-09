@@ -41,9 +41,10 @@ export function getMilestoneIndex(months) {
 export function saveAndStart() {
   const name = document.getElementById('baby-name-input').value.trim();
   const dob  = document.getElementById('birth-date-input').value;
-  if (!name || !dob) { alert('請填寫寶寶的名字與出生日期'); return; }
+  if (!name) { alert('請填寫寶寶的名字'); return; }
   localStorage.setItem('baby_name', name);
-  localStorage.setItem('baby_dob',  dob);
+  if (dob) localStorage.setItem('baby_dob', dob);
+  else localStorage.removeItem('baby_dob');
   initApp();
 }
 
@@ -58,19 +59,69 @@ export function changeProfile() {
 export function initApp() {
   const name = localStorage.getItem('baby_name');
   const dob  = localStorage.getItem('baby_dob');
-  if (!name || !dob) return;
-
-  const age  = calcAge(dob);
-  const idx  = getMilestoneIndex(age.months);
-  currentMilestoneIndex = idx;
-
-  const milestone = MILESTONES[idx];
+  if (!name) return;
 
   document.getElementById('setup-screen').style.display = 'none';
   document.getElementById('app-screen').style.display   = 'block';
 
-  // Topbar
-  document.getElementById('display-name').textContent       = name;
+  // Topbar name
+  document.getElementById('display-name').textContent = name;
+
+  // Countdown badge
+  const countdownBadge = document.getElementById('countdown-badge');
+  const countdownDays  = document.getElementById('countdown-days');
+
+  // Handle missing DOB or future DOB
+  const isFuture = dob && calcAge(dob).totalDays < 0;
+  const noDob    = !dob;
+
+  if (noDob || isFuture) {
+    // Default to first milestone
+    currentMilestoneIndex = 0;
+    const milestone = MILESTONES[0];
+
+    document.getElementById('display-age').textContent       = '—';
+    document.getElementById('display-age-exact').textContent  = noDob ? '未設定' : '';
+
+    // Show countdown for future DOB
+    if (isFuture) {
+      const daysUntilBirth = Math.abs(calcAge(dob).totalDays);
+      countdownBadge.classList.remove('hidden');
+      countdownDays.textContent = `還有 ${daysUntilBirth} 天`;
+    } else {
+      countdownBadge.classList.add('hidden');
+    }
+
+    document.getElementById('current-stage-label').textContent = milestone.stageLabel;
+    document.getElementById('progress-desc').textContent = noDob
+      ? '請補填出生日期以啟用月齡追蹤'
+      : '寶寶尚未出生，時間軸以預設顯示';
+
+    // Alert
+    const alertEl = document.getElementById('alert-strip');
+    alertEl.classList.remove('visible');
+
+    // Piaget trigger
+    const pd = PIAGET_DATA[PIAGET_KEY_MAP[0]];
+    document.getElementById('piaget-trigger-desc').textContent =
+      `${pd.piagetStage} · ${pd.piagetSub}`;
+
+    const age = { months: 0, weeks: 0, totalDays: 0 };
+    renderTimeline(0);
+    initThumbDrag();
+    renderTodoCard(0, age, 'future');
+    renderUpcoming(0);
+    return;
+  }
+
+  // Normal flow: DOB exists and is in the past
+  const age  = calcAge(dob);
+  const idx  = getMilestoneIndex(age.months);
+  currentMilestoneIndex = idx;
+  const milestone = MILESTONES[idx];
+
+  countdownBadge.classList.add('hidden');
+
   document.getElementById('display-age').textContent        = `${age.months}個月`;
   document.getElementById('display-age-exact').textContent  = `${age.weeks}週`;
 
@@ -472,9 +523,9 @@ window.openPiagetDrawer  = openPiagetDrawer;
 window.addEventListener('DOMContentLoaded', () => {
   const name = localStorage.getItem('baby_name');
   const dob  = localStorage.getItem('baby_dob');
-  if (name && dob) {
+  if (name) {
     document.getElementById('baby-name-input').value = name;
-    document.getElementById('birth-date-input').value = dob;
+    if (dob) document.getElementById('birth-date-input').value = dob;
     initApp();
   }
 });

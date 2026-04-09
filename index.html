@@ -75,8 +75,11 @@
   <div class="bg-surface-container-low rounded-2xl p-10 sm:p-12 max-w-md w-full shadow-elevation-3 text-center animate-fade-up">
     <span class="text-5xl block mb-6 animate-bounce-slow">🌱</span>
     <h1 class="font-serif text-2xl font-bold mb-2 text-on-surface">寶寶發展追蹤</h1>
-    <p class="text-sm text-on-surface-variant leading-relaxed mb-8">
+    <p class="text-sm text-on-surface-variant leading-relaxed mb-6">
       輸入寶寶的姓名與出生日期，每次打開都會根據<strong class="text-on-surface">實際月齡與週數</strong>顯示當前發展任務清單。
+    </p>
+    <p class="text-xs text-on-surface-variant/70 leading-relaxed mb-8 bg-surface-container rounded-md px-4 py-2.5">
+      可以先跳過出生日期，之後再補填。所有資料僅儲存於你的瀏覽器，不會上傳。
     </p>
     <div class="text-left mb-5">
       <label class="block text-xs font-medium tracking-widest uppercase text-on-surface-variant mb-2">寶寶的名字</label>
@@ -104,6 +107,11 @@
     <div class="bg-primary text-on-primary rounded-full px-5 py-2 text-center shrink-0">
       <div class="font-mono text-xl font-medium leading-tight" id="display-age">0個月</div>
       <div class="text-[10px] opacity-85 mt-0.5" id="display-age-exact">0週</div>
+    </div>
+    <!-- Countdown badge (hidden by default, shown for future DOB) -->
+    <div id="countdown-badge" class="hidden bg-tertiary-container text-tertiary-on-container rounded-full px-4 py-2 text-center shrink-0">
+      <div class="font-mono text-sm font-medium leading-tight" id="countdown-days"></div>
+      <div class="text-[10px] opacity-85 mt-0.5">距離出生</div>
     </div>
     <button class="btn-outlined-on-surface text-xs" onclick="changeProfile()">更改資料</button>
   </div>
