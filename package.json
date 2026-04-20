@@ -1,0 +1,23 @@
+{
+  "name": "piaget-based-child-checklist",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "build": "postcss src/css/main.css -o dist/main.css",
+    "watch": "postcss src/css/main.css -o dist/main.css --watch",
+    "dev": "npm run watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@tailwindcss/forms": "^0.5.11",
+    "@tailwindcss/postcss": "^4.2.2",
+    "autoprefixer": "^10.5.0",
+    "d3": "^7.9.0",
+    "postcss": "^8.5.10",
+    "postcss-cli": "^11.0.1",
+    "tailwindcss": "^4.2.2"
+  }
+}

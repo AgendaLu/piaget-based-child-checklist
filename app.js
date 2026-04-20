@@ -3,8 +3,8 @@
 // 主應用邏輯：初始化、月齡計算、
 // 時間軸渲染、任務卡渲染
 // ─────────────────────────────────────────
-import { MILESTONES, DOMAIN_META } from '../data/milestones.js';
-import { PIAGET_KEY_MAP, PIAGET_DATA } from '../data/piaget.js';
+import { MILESTONES, DOMAIN_META } from './milestones.js';
+import { PIAGET_KEY_MAP, PIAGET_DATA } from './piaget.js';
 import { openPiagetDrawer } from './drawer.js';
 
 // ── 狀態 ──────────────────────────────────
@@ -48,8 +48,8 @@ export function saveAndStart() {
 }
 
 export function changeProfile() {
-  document.getElementById('app-screen').style.display    = 'none';
-  document.getElementById('setup-screen').style.display  = 'flex';
+  document.getElementById('app-screen').classList.add('hidden');
+  document.getElementById('setup-screen').classList.remove('hidden');
 }
 
 // ─────────────────────────────────────────
@@ -66,8 +66,8 @@ export function initApp() {
 
   const milestone = MILESTONES[idx];
 
-  document.getElementById('setup-screen').style.display = 'none';
-  document.getElementById('app-screen').style.display   = 'block';
+  document.getElementById('setup-screen').classList.add('hidden');
+  document.getElementById('app-screen').classList.remove('hidden');
 
   // Topbar
   document.getElementById('display-name').textContent       = name;
@@ -194,8 +194,11 @@ export function toggleTimeline() {
   const expanded  = document.getElementById('tl-expanded');
   const expandBtn = document.getElementById('tl-expand-btn');
 
-  expanded?.classList.toggle('open', timelineOpen);
-  expandBtn?.classList.toggle('open', timelineOpen);
+  if (timelineOpen) {
+    expanded?.classList.remove('hidden');
+  } else {
+    expanded?.classList.add('hidden');
+  }
 
   const label = document.getElementById('tl-expand-label');
   if (label) label.textContent = timelineOpen ? '收合時間軸' : '展開時間軸';
@@ -217,7 +220,7 @@ export function toggleTimeline() {
 // ─────────────────────────────────────────
 // 任務卡渲染（支援 current / past / future）
 // ─────────────────────────────────────────
-function renderTodoCard(idx, age, type) {
+export function renderTodoCard(idx, age, type) {
   const milestone = MILESTONES[idx];
   const card = document.getElementById('todo-card');
   if (!card) return;
@@ -421,6 +424,9 @@ window.changeProfile     = changeProfile;
 window.resetChecks       = resetChecks;
 window.toggleTimeline    = toggleTimeline;
 window.openPiagetDrawer  = openPiagetDrawer;
+window.calcAge           = calcAge;
+window.getMilestoneIndex = getMilestoneIndex;
+window.renderTodoCard    = renderTodoCard;
 
 // ─────────────────────────────────────────
 // DOMContentLoaded 入口

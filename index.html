@@ -5,124 +5,167 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>寶寶發展追蹤｜個人化里程碑</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&family=Noto+Sans+TC:wght@300;400;500;600&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/base.css">
-  <link rel="stylesheet" href="css/components.css">
-  <link rel="stylesheet" href="css/drawer.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'ink': 'oklch(15% 0.05 280)',
+            'ink-soft': 'oklch(45% 0.08 280)',
+            'ink-faint': 'oklch(65% 0.06 280)',
+            'surface': 'oklch(99% 0.001 0)',
+            'bg': 'oklch(95% 0.01 280)',
+            'border': 'oklch(87% 0.02 280)',
+            'domain-gross': 'oklch(65% 0.25 142)',
+            'domain-gross-light': 'oklch(92% 0.06 142)',
+            'domain-fine': 'oklch(55% 0.22 260)',
+            'domain-fine-light': 'oklch(91% 0.05 260)',
+            'domain-language': 'oklch(65% 0.20 85)',
+            'domain-language-light': 'oklch(93% 0.04 85)',
+            'domain-cognitive': 'oklch(60% 0.15 310)',
+            'domain-cognitive-light': 'oklch(92% 0.04 310)',
+            'domain-social': 'oklch(60% 0.20 200)',
+            'domain-social-light': 'oklch(91% 0.05 200)',
+            'retro': 'oklch(70% 0.15 20)',
+            'retro-light': 'oklch(93% 0.03 20)',
+            'piaget': 'oklch(58% 0.15 250)',
+            'piaget-light': 'oklch(92% 0.04 250)',
+          },
+          fontFamily: {
+            'display': ['Noto Serif TC', 'Georgia', 'serif'],
+            'body': ['Noto Sans TC', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+            'mono': ['DM Mono', 'Menlo', 'monospace'],
+          },
+          keyframes: {
+            fadeUp: {
+              '0%': { opacity: '0', transform: 'translateY(16px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            },
+            fadeIn: {
+              '0%': { opacity: '0' },
+              '100%': { opacity: '1' },
+            },
+          },
+          animation: {
+            fadeUp: 'fadeUp 0.4s ease both',
+            fadeIn: 'fadeIn 0.3s ease',
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      font-family: 'Noto Serif TC', Georgia, serif;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in { animation: fadeUp 0.4s ease both; }
+    .open { display: block !important; }
+  </style>
 </head>
 <body>
 
 <!-- ══════════════════════════════════════
      SETUP SCREEN
      ══════════════════════════════════════ -->
-<div id="setup-screen">
-  <div class="setup-card">
-    <span class="setup-icon">🌱</span>
-    <h1>寶寶發展追蹤</h1>
-    <p>輸入寶寶的姓名與出生日期，每次打開都會根據<strong>實際月齡與週數</strong>顯示當前發展任務清單。</p>
-    <div class="input-group">
-      <label>寶寶的名字</label>
-      <input type="text" id="baby-name-input" placeholder="例：小橘子" maxlength="20">
+<div id="setup-screen" class="flex items-center justify-center min-h-screen p-6 bg-bg">
+  <div class="bg-surface rounded-2xl shadow-lg p-12 max-w-96 w-full text-center fade-in">
+    <span class="text-5xl block mb-6">🌱</span>
+    <h1 class="font-display text-3xl font-bold mb-3 text-ink">寶寶發展追蹤</h1>
+    <p class="text-sm text-ink-faint leading-relaxed mb-8">輸入寶寶的姓名與出生日期，每次打開都會根據<strong>實際月齡與週數</strong>顯示當前發展任務清單。</p>
+    <div class="text-left mb-5">
+      <label class="block text-xs font-semibold text-ink-soft uppercase tracking-wide mb-2">寶寶的名字</label>
+      <input type="text" id="baby-name-input" placeholder="例：小橘子" maxlength="20" class="w-full px-4 py-3 border border-border rounded-lg bg-bg text-base outline-none transition-colors focus:border-ink focus:bg-surface">
     </div>
-    <div class="input-group">
-      <label>出生日期</label>
-      <input type="date" id="birth-date-input">
+    <div class="text-left mb-6">
+      <label class="block text-xs font-semibold text-ink-soft uppercase tracking-wide mb-2">出生日期</label>
+      <input type="date" id="birth-date-input" class="w-full px-4 py-3 border border-border rounded-lg bg-bg text-base outline-none transition-colors focus:border-ink focus:bg-surface">
     </div>
-    <button class="btn-primary" onclick="saveAndStart()">開始追蹤 →</button>
+    <button onclick="saveAndStart()" class="w-full px-4 py-3 bg-ink text-surface font-semibold rounded-lg hover:bg-ink-soft active:scale-95 transition-all">開始追蹤 →</button>
   </div>
 </div>
 
 <!-- ══════════════════════════════════════
      MAIN APP
      ══════════════════════════════════════ -->
-<div id="app-screen">
+<div id="app-screen" class="hidden">
 
   <!-- TOPBAR -->
-  <div class="topbar">
-    <div class="topbar-left">
-      <div class="topbar-label">Baby Development Tracker</div>
-      <div class="topbar-name" id="display-name">寶寶</div>
+  <div class="sticky top-0 z-50 bg-ink text-surface px-8 py-5 flex items-center gap-5 border-b border-ink-soft">
+    <div class="flex-1">
+      <div class="font-mono text-xs uppercase tracking-widest text-retro">Baby Development Tracker</div>
+      <div class="font-display text-xl font-bold text-surface" id="display-name">寶寶</div>
     </div>
-    <div class="age-badge">
-      <div class="age-main" id="display-age">0m 0w</div>
-      <div class="age-sub"  id="display-age-exact">0個月 0週</div>
+    <div class="bg-retro text-white px-5 py-2 rounded-full text-center">
+      <div class="font-mono text-lg font-semibold" id="display-age">0m 0w</div>
+      <div class="text-xs opacity-85" id="display-age-exact">0個月 0週</div>
     </div>
-    <button class="topbar-change" onclick="changeProfile()">更改資料</button>
+    <button onclick="changeProfile()" class="px-4 py-2 text-sm font-medium rounded-lg hover:bg-ink-soft transition-colors">更改資料</button>
   </div>
 
-  <!-- TIMELINE BAR（吸頂，可展開） -->
-  <div class="timeline-bar">
-    <div class="timeline-collapsed" onclick="toggleTimeline()">
-      <span class="tl-label">0m</span>
-      <div class="tl-track">
-        <div class="tl-fill" id="tl-fill"></div>
-        <div class="tl-cursor" id="tl-cursor"></div>
-      </div>
-      <span class="tl-label">24m</span>
-      <div class="tl-expand-btn" id="tl-expand-btn">
-        <span id="tl-expand-label">展開時間軸</span>
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-          <path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </div>
-    </div>
-
-    <div class="timeline-expanded" id="tl-expanded">
-      <div class="tl-scroll" id="tl-scroll">
-        <div class="tl-nodes" id="tl-nodes"></div>
-      </div>
-      <div class="tl-scroll-hint">← 左右滑動查看完整時間軸 →</div>
-    </div>
+  <!-- TIMELINE BAR（吸頂，D3 時間軸） -->
+  <div class="sticky top-16 z-40 bg-surface border-b border-border">
+    <div id="d3-timeline-container" style="width: 100%; height: 120px;"></div>
   </div>
 
   <!-- MAIN CONTENT -->
-  <div class="content">
+  <div class="px-8 py-6 max-w-5xl mx-auto">
 
     <!-- Progress strip -->
-    <div class="progress-strip fade-in">
-      <div class="progress-info">
-        <h2 id="current-stage-label">新生兒期</h2>
-        <p  id="progress-desc">距離下一個發展階段還有 — 天</p>
+    <div class="mb-8 fade-in">
+      <div class="mb-6">
+        <h2 class="font-display text-3xl font-bold text-ink" id="current-stage-label">新生兒期</h2>
+        <p class="text-sm text-ink-faint mt-1" id="progress-desc">距離下一個發展階段還有 — 天</p>
       </div>
-      <div class="progress-bar-wrap">
-        <div class="progress-bar-label">
+      <div>
+        <div class="flex justify-between text-xs text-ink-faint mb-2 font-mono">
           <span>出生</span>
           <span>12個月</span>
           <span>24個月</span>
         </div>
-        <div class="progress-bar-track">
-          <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
+        <div class="h-2 bg-border rounded-full overflow-hidden">
+          <div class="h-full bg-gradient-to-r from-retro to-piaget rounded-full transition-all" id="progress-fill" style="width:0%"></div>
         </div>
       </div>
     </div>
 
     <!-- Alert -->
-    <div class="alert-strip" id="alert-strip"></div>
+    <div id="alert-strip" class="mb-6"></div>
 
     <!-- Current todo card -->
-    <div class="section-title">本週發展任務清單</div>
-    <div class="todo-card fade-in" id="todo-card">
-      <h3 id="todo-title">載入中…</h3>
-      <p class="todo-subtitle" id="todo-subtitle"></p>
+    <h3 class="text-sm font-semibold text-ink-soft uppercase tracking-wide mb-4">本週發展任務清單</h3>
+    <div class="bg-surface rounded-lg shadow-sm p-6 mb-8 fade-in" id="todo-card">
+      <h3 class="font-display text-2xl font-bold text-ink mb-2" id="todo-title">載入中…</h3>
+      <p class="text-sm text-ink-soft mb-4" id="todo-subtitle"></p>
       <div id="todo-domains"></div>
 
       <!-- Piaget trigger -->
-      <div class="piaget-trigger-wrap">
-        <button class="piaget-trigger" onclick="openPiagetDrawer()">
-          <span class="piaget-trigger-icon">🔬</span>
-          <div class="piaget-trigger-text">
-            <div class="piaget-trigger-label">延伸探索 — 皮亞傑認知發展</div>
-            <div class="piaget-trigger-desc" id="piaget-trigger-desc">查看本階段對應的認知架構與促進活動</div>
+      <div class="mt-6 pt-6 border-t border-border">
+        <button onclick="openPiagetDrawer()" class="w-full flex items-center gap-4 p-4 bg-piaget-light rounded-lg hover:bg-piaget/10 transition-colors">
+          <span class="text-2xl">🔬</span>
+          <div class="text-left flex-1">
+            <div class="text-sm font-semibold text-piaget">延伸探索 — 皮亞傑認知發展</div>
+            <div class="text-xs text-ink-soft" id="piaget-trigger-desc">查看本階段對應的認知架構與促進活動</div>
           </div>
-          <span class="piaget-trigger-arrow">→</span>
+          <span class="text-lg text-piaget">→</span>
         </button>
       </div>
     </div>
 
     <!-- Upcoming milestones -->
-    <div class="section-title" id="upcoming-title">即將到來的里程碑</div>
-    <div class="upcoming-grid" id="upcoming-grid"></div>
+    <h3 class="text-sm font-semibold text-ink-soft uppercase tracking-wide mb-4" id="upcoming-title">即將到來的里程碑</h3>
+    <div class="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mb-8" id="upcoming-grid"></div>
 
-    <button class="reset-btn" onclick="resetChecks()">重設勾選狀態</button>
+    <button onclick="resetChecks()" class="px-4 py-2 bg-border text-ink text-sm font-medium rounded-lg hover:bg-border/80 transition-colors">重設勾選狀態</button>
 
   </div><!-- /content -->
 </div><!-- /app-screen -->
@@ -130,34 +173,34 @@
 <!-- ══════════════════════════════════════
      PIAGET DRAWER
      ══════════════════════════════════════ -->
-<div id="piaget-overlay" onclick="closePiagetDrawer()"></div>
+<div id="piaget-overlay" onclick="closePiagetDrawer()" class="hidden fixed inset-0 bg-black/50 z-50"></div>
 
-<div id="piaget-drawer" role="dialog" aria-modal="true" aria-label="皮亞傑認知發展延伸探索">
+<div id="piaget-drawer" role="dialog" aria-modal="true" aria-label="皮亞傑認知發展延伸探索" class="hidden fixed right-0 top-0 h-full w-full max-w-lg bg-surface shadow-xl z-50 overflow-y-auto">
 
-  <div class="drawer-header">
-    <div class="drawer-header-top">
+  <div class="sticky top-0 z-10 bg-surface border-b border-border p-6">
+    <div class="flex justify-between items-start mb-4">
       <div>
-        <div class="drawer-eyebrow">延伸探索 · Piaget Framework</div>
-        <div class="drawer-title">
+        <div class="text-xs font-semibold text-piaget uppercase tracking-wide mb-2">延伸探索 · Piaget Framework</div>
+        <h2 class="font-display text-2xl font-bold text-ink">
           認知發展理論
-          <span id="drawer-stage-subtitle">Jean Piaget · 1896–1980</span>
-        </div>
+          <span class="block text-xs text-ink-soft font-normal mt-1" id="drawer-stage-subtitle">Jean Piaget · 1896–1980</span>
+        </h2>
       </div>
-      <button class="drawer-close" onclick="closePiagetDrawer()" aria-label="關閉">✕</button>
+      <button onclick="closePiagetDrawer()" class="text-xl text-ink-soft hover:text-ink" aria-label="關閉">✕</button>
     </div>
-    <div class="drawer-stage-badge">
-      <div class="drawer-stage-dot"></div>
-      <span class="drawer-stage-name" id="drawer-piaget-stage">感覺動作期</span>
-      <span class="drawer-stage-age"  id="drawer-piaget-age">0–2 歲</span>
+    <div class="flex items-center gap-3 px-4 py-3 bg-piaget-light rounded-lg">
+      <div class="w-3 h-3 rounded-full bg-piaget"></div>
+      <span class="text-sm font-semibold text-piaget" id="drawer-piaget-stage">感覺動作期</span>
+      <span class="text-xs text-ink-soft" id="drawer-piaget-age">0–2 歲</span>
     </div>
   </div>
 
-  <div class="drawer-body" id="drawer-body-content">
+  <div class="p-6" id="drawer-body-content">
     <!-- dynamically rendered by drawer.js -->
   </div>
 
-  <div class="drawer-footer">
-    <p class="drawer-footer-note">
+  <div class="px-6 py-4 bg-bg border-t border-border">
+    <p class="text-xs text-ink-faint leading-relaxed">
       皮亞傑階段為認知發展方向參考，非診斷工具。<br>
       個體節奏有差異，階段順序固定但速度因人而異。
     </p>
@@ -166,7 +209,8 @@
 </div>
 
 <!-- ES Module 入口（type="module" 自動 defer） -->
-<script type="module" src="js/app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<script type="module" src="./init.js"></script>
 
 </body>
 </html>
