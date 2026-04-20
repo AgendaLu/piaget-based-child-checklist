@@ -24,7 +24,12 @@
       "Bash(python3 -c ' *)",
       "WebFetch(domain:www.nspt4kids.com)",
       "WebFetch(domain:parentingscience.com)",
-      "WebFetch(domain:www.who.int)"
+      "WebFetch(domain:www.who.int)",
+      "Bash(git push *)",
+      "Bash(git pull *)",
+      "Bash(git checkout *)",
+      "Bash(git commit *)",
+      "Bash(gh pr create --title 'Percentile-based milestone tracking with dark mode' --body ' *)"
     ]
   }
 }
