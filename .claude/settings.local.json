@@ -11,7 +11,20 @@
       "Bash(git reset *)",
       "Bash(git add *)",
       "Bash(git commit -m ' *)",
-      "Bash(git commit -m 'Add: Checkbox component styling and visual states *)"
+      "Bash(git commit -m 'Add: Checkbox component styling and visual states *)",
+      "Bash(node -c app.js)",
+      "Bash(node -c milestones.js)",
+      "Bash(python3)",
+      "WebSearch",
+      "WebFetch(domain:cdn.who.int)",
+      "WebFetch(domain:www.physio-pedia.com)",
+      "WebFetch(domain:sites.uw.edu)",
+      "WebFetch(domain:nesc.k12.sd.us)",
+      "Bash(pdftotext /Users/yicheng/.claude/projects/-Users-yicheng-Documents-GitHub-piaget-based-child-checklist/3d9994ab-0f09-4bce-89a6-60c2c30348c3/tool-results/webfetch-1776675307514-dizdxd.pdf -)",
+      "Bash(python3 -c ' *)",
+      "WebFetch(domain:www.nspt4kids.com)",
+      "WebFetch(domain:parentingscience.com)",
+      "WebFetch(domain:www.who.int)"
     ]
   }
 }

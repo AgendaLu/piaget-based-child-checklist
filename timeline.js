@@ -78,25 +78,17 @@ export class D3Timeline {
       .attr('stroke', 'white')
       .attr('stroke-width', 2)
       .style('cursor', 'pointer')
-      .on('click', (e, d, i) => {
+      .on('click', (e, d) => {
         this.callbacks?.onNodeClick?.(this.milestones.indexOf(d));
       })
       .on('mouseover', function() {
-        d3.select(this)
-          .transition()
-          .duration(200)
-          .attr('r', 8);
+        d3.select(this).transition().duration(200).attr('r', 8);
       })
-      .on('mouseout', function(d, i) {
-        d3.select(this)
-          .transition()
-          .duration(200)
-          .attr('r', (d, idx) => {
-            if (idx < this.currentIdx) return 6;
-            if (idx === this.currentIdx) return 10;
-            return 4;
-          }.bind(this));
-      });
+      .on('mouseout', ((ci) => function(e, d) {
+        const idx = ci.milestones.indexOf(d);
+        const r = idx < ci.currentIdx ? 6 : idx === ci.currentIdx ? 10 : 4;
+        d3.select(this).transition().duration(200).attr('r', r);
+      })(this));
 
     // 标签
     svg.selectAll('.timeline-label')

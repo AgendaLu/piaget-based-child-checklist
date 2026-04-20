@@ -6,14 +6,16 @@
 import { MILESTONES, DOMAIN_META } from './milestones.js';
 import { PIAGET_KEY_MAP, PIAGET_DATA } from './piaget.js';
 import { openPiagetDrawer } from './drawer.js';
+import { PERCENTILE_DATA, getPercentilePosition, getPositionLabel } from './percentile-distribution.js';
 
 // ── 狀態 ──────────────────────────────────
 export let currentMilestoneIndex = 0;  // drawer.js 也需要讀取
 let timelineOpen = false;
 
 // ── localStorage 鍵名 ─────────────────────
-// checks_{idx}  → { "gross_0": "normal"|"retro"|false, ... }
-// 三種值：false = 未勾選，"normal" = 當時完成，"retro" = 補填
+// checks_{idx}  → { "gross_0": { state: "normal"|"retro"|"intermediate"|false, date: "2024-01-15" }, ... }
+// 狀態值：false = 未勾選，"normal" = 按時完成，"retro" = 事後補填，"intermediate" = 超時補填（延遲）
+// 新增date欄位以判斷是否超過時間範圍
 
 // ─────────────────────────────────────────
 // 工具函式
@@ -33,6 +35,27 @@ export function getMilestoneIndex(months) {
     if (months >= MILESTONES[i].monthStart && months < MILESTONES[i].monthEnd) return i;
   }
   return MILESTONES.length - 1;
+}
+
+// 判斷打勾日期是否超過該里程碑的預期時間範圍
+export function isCheckOutOfRange(birthDate, milestoneIdx, checkDate) {
+  const birth = new Date(birthDate);
+  const check = new Date(checkDate);
+  const milestone = MILESTONES[milestoneIdx];
+
+  // 計算寶寶在check date時的月齡
+  const ageAtCheck = calcAge(birthDate);
+  const checkAtTime = new Date(check);
+
+  // 如果打勾時間是在未來，不計算
+  if (checkAtTime > new Date()) return false;
+
+  // 計算該里程碑的結束時間（以當時出生日期 + monthEnd個月）
+  const milestoneEndDate = new Date(birth);
+  milestoneEndDate.setMonth(milestoneEndDate.getMonth() + milestone.monthEnd);
+
+  // 如果打勾時間超過里程碑結束時間，表示是延遲的
+  return checkAtTime > milestoneEndDate;
 }
 
 // ─────────────────────────────────────────
@@ -218,6 +241,120 @@ export function toggleTimeline() {
 }
 
 // ─────────────────────────────────────────
+// 百分位條渲染（粗動作 Phase 1）
+// 支援里程碑級別的時間軸對齐（同一卡片內垂直對齐）
+// ─────────────────────────────────────────
+
+/**
+ * 計算單一里程碑所有粗動作項目的時間軸範圍
+ * @param {number}  idx - 里程碑索引
+ * @returns {object} { minMonth, maxMonth }
+ */
+function computeMilestonePercentileRange(idx) {
+  let milestoneMin = Infinity;
+  let milestoneMax = -Infinity;
+
+  Object.entries(PERCENTILE_DATA).forEach(([key, data]) => {
+    if (key.startsWith(`${idx}_gross_`)) {
+      milestoneMin = Math.min(milestoneMin, data.p10);
+      milestoneMax = Math.max(milestoneMax, data.p90);
+    }
+  });
+
+  // 如果沒找到任何資料，回傳安全預設值
+  if (!isFinite(milestoneMin) || !isFinite(milestoneMax)) {
+    return { minMonth: 0, maxMonth: 24 };
+  }
+
+  return { minMonth: milestoneMin, maxMonth: milestoneMax };
+}
+
+/**
+ * 為單一項目建立百分位視覺條
+ * @param {string}  pctKey           - `{milestoneIdx}_gross_{itemIdx}`
+ * @param {number}  ageExact         - 寶寶精確月齡（小數）
+ * @param {object}  milestoneRange   - { minMonth, maxMonth } 里程碑參考範圍（里程碑級對齐）
+ * @returns {HTMLElement|null}
+ */
+function renderPercentileBar(pctKey, ageExact, milestoneRange = null) {
+  const data = PERCENTILE_DATA[pctKey];
+  if (!data) return null;
+
+  const pos = getPercentilePosition(pctKey, ageExact);
+
+  // ── 使用里程碑時間軸範圍或計算項目局部範圍
+  let minM, maxM;
+  if (milestoneRange) {
+    // 使用里程碑範圍（同一卡片內所有項目共用），加 buffer 以騰出標籤空間
+    const span = milestoneRange.maxMonth - milestoneRange.minMonth;
+    const buffer = Math.max(span * 0.12, 0.5);
+    minM = Math.max(0, milestoneRange.minMonth - buffer);
+    maxM = milestoneRange.maxMonth + buffer;
+  } else {
+    // 項目級計算（向後相容性）
+    const span = data.p90 - data.p10;
+    const buffer = Math.max(span * 0.18, 0.5);
+    minM = Math.max(0, data.p10 - buffer);
+    maxM = data.p90 + buffer;
+  }
+
+  const total = maxM - minM;
+  const pct = (m) => ((m - minM) / total * 100).toFixed(2);
+
+  const p10L = pct(data.p10);
+  const p25L = pct(data.p25);
+  const p50L = pct(data.p50);
+  const p75L = pct(data.p75);
+  const p90L = pct(data.p90);
+
+  // 寶寶月齡對應位置（允許稍微超出兩端）
+  const babyRaw = (ageExact - minM) / total * 100;
+  const babyL   = Math.max(0.5, Math.min(99.5, babyRaw)).toFixed(2);
+
+  const outerW  = (parseFloat(p90L) - parseFloat(p10L)).toFixed(2);
+  const innerW  = (parseFloat(p75L) - parseFloat(p25L)).toFixed(2);
+
+  // 圓點顏色：超前→綠色系，正常→藍色，落後→橙/紅
+  const DOT_COLORS = {
+    'far-ahead':       'oklch(52% 0.20 160)',   // 鮮綠：顯著超前
+    'ahead':           'oklch(62% 0.25 142)',   // 草綠：超前
+    'slightly-ahead':  'oklch(64% 0.18 162)',   // 黃綠：稍超前
+    'normal':          'oklch(55% 0.18 262)',   // 藍色：正常
+    'slightly-behind': 'oklch(68% 0.18 65)',    // 琥珀：稍落後
+    'behind':          'oklch(60% 0.18 28)',    // 橙紅：需關注
+  };
+  const dotColor = pos ? DOT_COLORS[pos.position] : 'oklch(70% 0.02 280)';
+  const label    = pos ? getPositionLabel(pos.position) : '';
+
+  const wrap = document.createElement('div');
+  wrap.className = 'pct-bar-wrap';
+  wrap.setAttribute('title', `寶寶 ${ageExact.toFixed(1)} 個月 · ${label}`);
+
+  // 標籤位置邏輯：避免重疊，只在空間充足時顯示
+  // P10 左对齐，P50 居中，P90 右对齐
+  const labelHTML = `
+    <div class="pct-label" style="left:${p10L}%;text-align:left">P10</div>
+    <div class="pct-label" style="left:${p50L}%;text-align:center;transform:translateX(-50%)">P50</div>
+    <div class="pct-label" style="left:${p90L}%;text-align:right;transform:translateX(-100%)">P90</div>
+  `;
+
+  wrap.innerHTML = `
+    <div class="pct-track-area">
+      <div class="pct-rail"></div>
+      <div class="pct-zone-outer" style="left:${p10L}%;width:${outerW}%"></div>
+      <div class="pct-zone-inner" style="left:${p25L}%;width:${innerW}%"></div>
+      <div class="pct-median"     style="left:${p50L}%"></div>
+      <div class="pct-baby-dot"   style="left:${babyL}%;background:${dotColor}"></div>
+      <div class="pct-labels-row">
+        ${labelHTML}
+      </div>
+    </div>
+  `;
+
+  return wrap;
+}
+
+// ─────────────────────────────────────────
 // 任務卡渲染（支援 current / past / future）
 // ─────────────────────────────────────────
 export function renderTodoCard(idx, age, type) {
@@ -225,8 +362,8 @@ export function renderTodoCard(idx, age, type) {
   const card = document.getElementById('todo-card');
   if (!card) return;
 
-  // 任務卡上緣色條
-  card.className = `todo-card fade-in is-${type}`;
+  // 任務卡上緣色條（保留 Tailwind 佈局 class，避免 dark mode 失去背景）
+  card.className = `todo-card bg-surface rounded-lg shadow-sm p-6 mb-8 fade-in is-${type}`;
 
   // 標題列
   document.getElementById('todo-title').textContent =
@@ -262,7 +399,9 @@ export function renderTodoCard(idx, age, type) {
 
     items.forEach((text, i) => {
       const itemKey   = `${key}_${i}`;
-      const itemState = saved[itemKey] || false; // false | "normal" | "retro"
+      const itemData = saved[itemKey] || false;
+      // 相容舊的字串格式和新的物件格式
+      const itemState = itemData === false ? false : (typeof itemData === 'object' ? itemData.state : itemData);
 
       const item = document.createElement('div');
 
@@ -275,33 +414,45 @@ export function renderTodoCard(idx, age, type) {
         let itemClass = 'todo-item';
         if (itemState === 'normal') itemClass += ' done-normal';
         if (itemState === 'retro')  itemClass += ' done-retro';
+        if (itemState === 'intermediate') itemClass += ' done-intermediate';
         item.className = itemClass;
         item.innerHTML = `<div class="todo-checkbox"></div><div class="todo-text">${text}</div>`;
 
         item.addEventListener('click', () => {
           const cur = JSON.parse(localStorage.getItem(checkKey) || '{}');
-          const current = cur[itemKey] || false;
+          const itemData = cur[itemKey] || false;
+          const currentState = itemData === false ? false : (typeof itemData === 'object' ? itemData.state : itemData);
+          const today = new Date().toISOString().split('T')[0];
 
-          // 循環：false → normal → retro → false
-          // current 階段只有 false / normal（補填語意不適用當前）
+          // 判斷下一個狀態
           let next;
           if (type === 'current') {
-            next = current === 'normal' ? false : 'normal';
+            // current 階段：false ↔ normal
+            next = currentState === 'normal' ? false : { state: 'normal', date: today };
           } else {
-            // past 階段：false → retro → normal → false
-            // 讓補填（retro）成為第一步，表示「我現在回頭記錄」
-            if      (current === false)    next = 'retro';
-            else if (current === 'retro')  next = 'normal';
-            else                           next = false;
+            // past 階段：false → retro → intermediate/normal → false
+            if (currentState === false) {
+              next = { state: 'retro', date: today };
+            } else if (currentState === 'retro') {
+              // 從 retro 轉換，需檢查是否應該變成 intermediate
+              const isOutOfRange = isCheckOutOfRange(localStorage.getItem('baby_dob'), idx, today);
+              next = { state: isOutOfRange ? 'intermediate' : 'normal', date: today };
+            } else {
+              // 其他狀態 → false（取消勾選）
+              next = false;
+            }
           }
 
           cur[itemKey] = next;
           localStorage.setItem(checkKey, JSON.stringify(cur));
 
           // 更新 class
-          item.classList.remove('done-normal', 'done-retro');
-          if (next === 'normal') item.classList.add('done-normal');
-          if (next === 'retro')  item.classList.add('done-retro');
+          item.classList.remove('done-normal', 'done-retro', 'done-intermediate');
+          if (typeof next === 'object') {
+            if (next.state === 'normal') item.classList.add('done-normal');
+            else if (next.state === 'retro') item.classList.add('done-retro');
+            else if (next.state === 'intermediate') item.classList.add('done-intermediate');
+          }
 
           // 更新時間軸節點的 state
           renderTimeline(currentMilestoneIndex);
@@ -309,6 +460,16 @@ export function renderTodoCard(idx, age, type) {
       }
 
       section.appendChild(item);
+
+      // ── 百分位條（粗動作 Phase 1，非預覽）
+      if (key === 'gross' && type !== 'future') {
+        const pctKey  = `${idx}_gross_${i}`;
+        const ageExact = age.totalDays / 30.44;
+        // 使用里程碑範圍確保同一卡片內時間軸對齐（避免浪費空間）
+        const milestoneRange = computeMilestonePercentileRange(idx);
+        const barEl   = renderPercentileBar(pctKey, ageExact, milestoneRange);
+        if (barEl) section.appendChild(barEl);
+      }
     });
 
     container.appendChild(section);
@@ -325,13 +486,27 @@ export function renderTodoCard(idx, age, type) {
   if (type === 'past') {
     const allItems    = Object.values(milestone.domains).flat();
     const total       = allItems.length;
-    const normalCount = Object.values(saved).filter(v => v === 'normal').length;
-    const retroCount  = Object.values(saved).filter(v => v === 'retro').length;
-    const doneCount   = normalCount + retroCount;
+
+    // 相容舊格式和新格式
+    const normalCount = Object.values(saved).filter(v => {
+      const state = typeof v === 'object' ? v.state : v;
+      return state === 'normal';
+    }).length;
+    const retroCount = Object.values(saved).filter(v => {
+      const state = typeof v === 'object' ? v.state : v;
+      return state === 'retro';
+    }).length;
+    const intermediateCount = Object.values(saved).filter(v => {
+      const state = typeof v === 'object' ? v.state : v;
+      return state === 'intermediate';
+    }).length;
+
+    const doneCount   = normalCount + retroCount + intermediateCount;
     const pct         = total > 0 ? Math.round((doneCount / total) * 100) : 0;
+    const hasIntermediate = intermediateCount > 0;
     const hasRetro    = retroCount > 0;
-    const fillClass   = hasRetro ? 'fill-retro' : 'fill-normal';
-    const pctClass    = hasRetro ? 'has-retro'  : 'all-normal';
+    const fillClass   = hasIntermediate ? 'fill-intermediate' : (hasRetro ? 'fill-retro' : 'fill-normal');
+    const pctClass    = hasIntermediate ? 'has-intermediate' : (hasRetro ? 'has-retro' : 'all-normal');
 
     const achvBar = document.createElement('div');
     achvBar.className = 'achievement-bar';
@@ -344,10 +519,14 @@ export function renderTodoCard(idx, age, type) {
     `;
     container.after(achvBar);
 
-    if (hasRetro) {
+    if (hasRetro || hasIntermediate) {
       const note = document.createElement('div');
       note.className = 'retro-note';
-      note.textContent = `其中 ${retroCount} 項為事後補填記錄`;
+      let text = '';
+      if (retroCount > 0) text += `${retroCount} 項事後補填`;
+      if (retroCount > 0 && intermediateCount > 0) text += '、';
+      if (intermediateCount > 0) text += `${intermediateCount} 項延遲記錄`;
+      note.textContent = `其中 ${text}`;
       achvBar.after(note);
     }
   }

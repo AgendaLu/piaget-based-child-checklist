@@ -128,6 +128,22 @@
       font-size: 13px;
     }
 
+    .todo-item.done-intermediate .todo-checkbox {
+      background: oklch(65% 0.20 200);
+      border-color: oklch(65% 0.20 200);
+      position: relative;
+    }
+
+    .todo-item.done-intermediate .todo-checkbox::after {
+      content: '⏱';
+      position: absolute;
+      top: -3px;
+      left: 3px;
+      color: white;
+      font-weight: bold;
+      font-size: 13px;
+    }
+
     .todo-item.locked .todo-checkbox {
       background: oklch(87% 0.02 280);
       border-color: oklch(87% 0.02 280);
@@ -163,6 +179,179 @@
       width: 12px;
       height: 12px;
       border-radius: 50%;
+    }
+
+    /* Achievement bar colors */
+    .achievement-fill.fill-intermediate {
+      background: oklch(65% 0.20 200);
+    }
+
+    .achievement-pct.has-intermediate {
+      color: oklch(65% 0.20 200);
+    }
+
+    /* ── 百分位條 ───────────────────────────── */
+    .pct-bar-wrap {
+      /* 左側 32px = checkbox(20) + gap(12) 對齊文字 */
+      margin: 1px 0 10px 32px;
+      cursor: default;
+      user-select: none;
+    }
+
+    .pct-track-area {
+      position: relative;
+      height: 27px;  /* 13px bar zone + 14px label zone */
+    }
+
+    /* 底部灰色軌道 */
+    .pct-rail {
+      position: absolute;
+      top: 4px;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: oklch(90% 0.015 280);
+      border-radius: 2px;
+    }
+
+    /* p10–p90 外部區間（pale green） */
+    .pct-zone-outer {
+      position: absolute;
+      top: 4px;
+      height: 4px;
+      background: oklch(82% 0.10 142 / 0.55);
+      border-radius: 2px;
+    }
+
+    /* p25–p75 中間區間（stronger green） */
+    .pct-zone-inner {
+      position: absolute;
+      top: 3px;
+      height: 6px;
+      background: oklch(65% 0.22 142 / 0.45);
+      border-radius: 3px;
+    }
+
+    /* p50 刻度線 */
+    .pct-median {
+      position: absolute;
+      top: 1px;
+      width: 1.5px;
+      height: 10px;
+      background: oklch(55% 0.20 142 / 0.70);
+      border-radius: 1px;
+      transform: translateX(-50%);
+    }
+
+    /* 寶寶當前月齡圓點 */
+    .pct-baby-dot {
+      position: absolute;
+      top: 0;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      transform: translateX(-50%);
+      border: 2px solid white;
+      box-shadow: 0 1px 4px oklch(0% 0 0 / 0.25);
+      z-index: 2;
+      transition: left 0.25s ease;
+    }
+
+    /* 標籤列 */
+    .pct-labels-row {
+      position: absolute;
+      top: 15px;
+      left: 0;
+      right: 0;
+      height: 12px;
+      pointer-events: none;
+    }
+
+    .pct-label {
+      position: absolute;
+      font-family: 'DM Mono', Menlo, monospace;
+      font-size: 9px;
+      line-height: 1;
+      color: oklch(55% 0.06 280);
+      white-space: nowrap;
+      font-weight: 500;
+    }
+
+    /* locked 狀態下不顯示百分位條 */
+    .todo-item.locked + .pct-bar-wrap {
+      display: none;
+    }
+
+    /* ── Dark mode ──────────────────────────────────────── */
+    :root { color-scheme: light dark; }
+
+    @media (prefers-color-scheme: dark) {
+      body {
+        background-color: oklch(13% 0.02 280);
+        color: oklch(88% 0.02 280);
+      }
+      h1, h2, h3, h4, h5, h6 { color: oklch(92% 0.02 280); }
+
+      /* ── Tailwind color class overrides ── */
+      .bg-bg      { background-color: oklch(13% 0.02 280) !important; }
+      .bg-surface { background-color: oklch(19% 0.02 280) !important; }
+      .bg-border  { background-color: oklch(28% 0.02 280) !important; }
+      .text-ink       { color: oklch(92% 0.02 280) !important; }
+      .text-ink-soft  { color: oklch(68% 0.05 280) !important; }
+      .text-ink-faint { color: oklch(52% 0.06 280) !important; }
+      .border-border   { border-color: oklch(30% 0.02 280) !important; }
+      .border-ink-soft { border-color: oklch(38% 0.04 280) !important; }
+
+      /* ── Domain + accent light backgrounds ── */
+      .bg-domain-gross-light     { background-color: oklch(22% 0.08 142) !important; }
+      .bg-domain-fine-light      { background-color: oklch(20% 0.08 260) !important; }
+      .bg-domain-language-light  { background-color: oklch(22% 0.07 85)  !important; }
+      .bg-domain-cognitive-light { background-color: oklch(21% 0.06 310) !important; }
+      .bg-domain-social-light    { background-color: oklch(21% 0.07 200) !important; }
+      .bg-piaget-light           { background-color: oklch(22% 0.07 250) !important; }
+      .bg-retro-light            { background-color: oklch(22% 0.06 20)  !important; }
+
+      /* ── Inputs ── */
+      input[type="text"],
+      input[type="date"] {
+        background-color: oklch(22% 0.02 280);
+        color: oklch(88% 0.02 280);
+        border-color: oklch(35% 0.03 280);
+        color-scheme: dark;
+      }
+      input::placeholder { color: oklch(48% 0.05 280); }
+
+      /* ── Todo items ── */
+      .todo-text { color: oklch(88% 0.02 280); }
+      .todo-checkbox {
+        background: oklch(22% 0.02 280);
+        border-color: oklch(40% 0.04 280);
+      }
+      .todo-item:hover .todo-checkbox { border-color: oklch(64% 0.06 280); }
+      .todo-item.locked .todo-checkbox {
+        background: oklch(28% 0.02 280);
+        border-color: oklch(28% 0.02 280);
+      }
+
+      /* ── Percentile bars ── */
+      .pct-rail       { background: oklch(30% 0.02 280); }
+      .pct-zone-outer { background: oklch(42% 0.10 142 / 0.55); }
+      .pct-zone-inner { background: oklch(52% 0.20 142 / 0.45); }
+      .pct-median     { background: oklch(62% 0.20 142 / 0.80); }
+      .pct-label      { color: oklch(55% 0.06 280); }
+      .pct-baby-dot   { border-color: oklch(25% 0.02 280); }
+
+      /* ── Piaget drawer ── */
+      #piaget-drawer { background-color: oklch(17% 0.02 280) !important; }
+      #piaget-drawer .sticky { background-color: oklch(17% 0.02 280) !important; }
+
+      /* ── Progress bar track ── */
+      .bg-border.rounded-full { background-color: oklch(28% 0.02 280) !important; }
+
+      /* ── Shadow softening in dark ── */
+      .shadow-sm  { box-shadow: 0 1px 3px oklch(0% 0 0 / 0.4) !important; }
+      .shadow-lg  { box-shadow: 0 10px 30px oklch(0% 0 0 / 0.5) !important; }
+      .shadow-xl  { box-shadow: 0 20px 40px oklch(0% 0 0 / 0.6) !important; }
     }
   </style>
 </head>
