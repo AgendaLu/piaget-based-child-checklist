@@ -70,6 +70,100 @@
     }
     .fade-in { animation: fadeUp 0.4s ease both; }
     .open { display: block !important; }
+
+    /* Task checkboxes */
+    .todo-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 8px 0;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .todo-checkbox {
+      width: 20px;
+      height: 20px;
+      min-width: 20px;
+      border: 2px solid oklch(87% 0.02 280);
+      border-radius: 4px;
+      background: white;
+      transition: all 0.2s ease;
+      margin-top: 2px;
+    }
+
+    .todo-item:hover .todo-checkbox {
+      border-color: oklch(60% 0.15 280);
+    }
+
+    .todo-item.done-normal .todo-checkbox {
+      background: oklch(65% 0.25 142);
+      border-color: oklch(65% 0.25 142);
+      position: relative;
+    }
+
+    .todo-item.done-normal .todo-checkbox::after {
+      content: '✓';
+      position: absolute;
+      top: -3px;
+      left: 3px;
+      color: white;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    .todo-item.done-retro .todo-checkbox {
+      background: oklch(70% 0.15 20);
+      border-color: oklch(70% 0.15 20);
+      position: relative;
+    }
+
+    .todo-item.done-retro .todo-checkbox::after {
+      content: '⟲';
+      position: absolute;
+      top: -4px;
+      left: 2px;
+      color: white;
+      font-weight: bold;
+      font-size: 13px;
+    }
+
+    .todo-item.locked .todo-checkbox {
+      background: oklch(87% 0.02 280);
+      border-color: oklch(87% 0.02 280);
+      cursor: not-allowed;
+    }
+
+    .todo-item.locked {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .todo-text {
+      flex: 1;
+      font-size: 14px;
+      line-height: 1.5;
+      color: oklch(15% 0.05 280);
+    }
+
+    .domain-section {
+      margin-bottom: 20px;
+    }
+
+    .domain-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      font-size: 15px;
+    }
+
+    .domain-pip {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
   </style>
 </head>
 <body>

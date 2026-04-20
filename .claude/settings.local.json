@@ -10,7 +10,8 @@
       "mcp__Claude_Preview__preview_start",
       "Bash(git reset *)",
       "Bash(git add *)",
-      "Bash(git commit -m ' *)"
+      "Bash(git commit -m ' *)",
+      "Bash(git commit -m 'Add: Checkbox component styling and visual states *)"
     ]
   }
 }
