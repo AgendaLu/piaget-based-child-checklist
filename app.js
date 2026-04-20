@@ -7,10 +7,12 @@ import { MILESTONES, DOMAIN_META } from './milestones.js';
 import { PIAGET_KEY_MAP, PIAGET_DATA } from './piaget.js';
 import { openPiagetDrawer } from './drawer.js';
 import { PERCENTILE_DATA, getPercentilePosition, getPositionLabel } from './percentile-distribution.js';
+import { D3Timeline } from './timeline.js';
 
 // ── 狀態 ──────────────────────────────────
 export let currentMilestoneIndex = 0;  // drawer.js 也需要讀取
 let timelineOpen = false;
+let d3Timeline = null;  // D3Timeline 實例
 
 // ── localStorage 鍵名 ─────────────────────
 // checks_{idx}  → { "gross_0": { state: "normal"|"retro"|"intermediate"|false, date: "2024-01-15" }, ... }
@@ -129,67 +131,17 @@ export function initApp() {
 }
 
 // ─────────────────────────────────────────
-// Timeline
+// Timeline - D3 實現
 // ─────────────────────────────────────────
 function renderTimeline(currentIdx) {
-  // 收合狀態的進度條
-  const pct = Math.min(100, (currentIdx / (MILESTONES.length - 1)) * 100);
-  const fill   = document.getElementById('tl-fill');
-  const cursor = document.getElementById('tl-cursor');
-  if (fill)   fill.style.width   = pct + '%';
-  if (cursor) cursor.style.left  = pct + '%';
-
-  // 節點列
-  const container = document.getElementById('tl-nodes');
-  if (!container) return;
-  container.innerHTML = '';
-
-  MILESTONES.forEach((m, i) => {
-    const isActive  = (i === currentIdx);
-    const stateClass = i < currentIdx ? 'state-past'
-                     : i === currentIdx ? 'state-current'
-                     : 'state-future';
-
-    // 補填狀態：past 階段若有任何 retro 記錄，升格為 state-retro
-    let finalState = stateClass;
-    if (i < currentIdx) {
-      const saved = JSON.parse(localStorage.getItem(`checks_${i}`) || '{}');
-      const hasRetro = Object.values(saved).some(v => v === 'retro');
-      if (hasRetro) finalState = 'state-retro';
-    }
-
-    // 達成數
-    const saved = JSON.parse(localStorage.getItem(`checks_${i}`) || '{}');
-    const doneCount = Object.values(saved).filter(v => v === 'normal' || v === 'retro').length;
-    const totalItems = Object.values(m.domains).flat().length;
-
-    const node = document.createElement('div');
-    node.className = `tl-node ${finalState}${isActive ? ' active' : ''}`;
-    node.dataset.idx = i;
-
-    // 連接線（最後一個節點不加）
-    const connector = i < MILESTONES.length - 1
-      ? `<div class="tl-connector"></div>` : '';
-
-    // 節點圓點（past 加勾號）
-    const checkmark = (i < currentIdx)
-      ? `<svg width="8" height="6" viewBox="0 0 8 6" fill="none">
-           <path d="M1 3l2 2 4-4" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-         </svg>` : '';
-
-    const subText = i < currentIdx ? `${doneCount}/${totalItems}`
-                  : i === currentIdx ? '目前' : '';
-
-    node.innerHTML = `
-      ${connector}
-      <div class="tl-circle">${checkmark}</div>
-      <div class="tl-node-label">${m.label}</div>
-      <div class="tl-node-sub">${subText}</div>
-    `;
-
-    node.addEventListener('click', () => onTimelineNodeClick(i));
-    container.appendChild(node);
-  });
+  // 初始化或更新 D3 時間軸
+  if (!d3Timeline) {
+    d3Timeline = new D3Timeline('d3-timeline-container', MILESTONES, currentIdx, {
+      onNodeClick: onTimelineNodeClick
+    });
+  } else {
+    d3Timeline.update(currentIdx);
+  }
 }
 
 function onTimelineNodeClick(idx) {

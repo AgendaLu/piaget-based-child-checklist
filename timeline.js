@@ -1,6 +1,6 @@
 // ─────────────────────────────────────────
 // D3 Timeline Component
-// 交互式时间轴可视化
+// 交互式时间轴可视化 + 完成状态戳记
 // ─────────────────────────────────────────
 
 export class D3Timeline {
@@ -17,6 +17,24 @@ export class D3Timeline {
     this.width = this.container.offsetWidth - this.margin.left - this.margin.right;
 
     this.render();
+  }
+
+  // 检查里程碑的完成状态
+  getCompletionState(idx) {
+    const saved = JSON.parse(localStorage.getItem(`checks_${idx}`) || '{}');
+    const allStates = Object.values(saved).map(v => typeof v === 'object' ? v.state : v);
+    const hasNormal = allStates.some(s => s === 'normal');
+    const hasRetro = allStates.some(s => s === 'retro');
+    const hasIntermediate = allStates.some(s => s === 'intermediate');
+
+    if (hasIntermediate) {
+      return { state: 'intermediate', icon: '⏱', color: 'oklch(65% 0.20 200)' };
+    } else if (hasRetro) {
+      return { state: 'retro', icon: '⟲', color: 'oklch(70% 0.15 20)' };
+    } else if (hasNormal) {
+      return { state: 'normal', icon: '✓', color: 'oklch(65% 0.25 142)' };
+    }
+    return { state: 'none', icon: '', color: '' };
   }
 
   render() {
@@ -57,38 +75,68 @@ export class D3Timeline {
       .attr('stroke-width', 4)
       .attr('stroke-linecap', 'round');
 
-    // 节点
-    svg.selectAll('.timeline-node')
+    // 节点 + 戳记
+    const nodeGroups = svg.selectAll('.timeline-node')
       .data(this.milestones)
       .enter()
       .append('g')
       .attr('class', 'timeline-node')
-      .attr('transform', (d, i) => `translate(${xScale(i)},${this.height / 2})`)
-      .append('circle')
+      .attr('transform', (d, i) => `translate(${xScale(i)},${this.height / 2})`);
+
+    // 节点圆点
+    const self = this;
+    nodeGroups.append('circle')
+      .attr('class', 'timeline-circle')
       .attr('r', (d, i) => {
-        if (i < this.currentIdx) return 6;
-        if (i === this.currentIdx) return 10;
+        if (i < self.currentIdx) return 6;
+        if (i === self.currentIdx) return 10;
         return 4;
       })
       .attr('fill', (d, i) => {
-        if (i < this.currentIdx) return 'oklch(65% 0.25 142)';
-        if (i === this.currentIdx) return 'oklch(60% 0.20 200)';
+        if (i < self.currentIdx) return 'oklch(65% 0.25 142)';
+        if (i === self.currentIdx) return 'oklch(60% 0.20 200)';
         return 'oklch(87% 0.02 280)';
       })
       .attr('stroke', 'white')
       .attr('stroke-width', 2)
       .style('cursor', 'pointer')
-      .on('click', (e, d) => {
-        this.callbacks?.onNodeClick?.(this.milestones.indexOf(d));
+      .on('mouseover', function(d, i) {
+        d3.select(this).transition().duration(200).attr('r', (d, i) => {
+          if (i < self.currentIdx) return 8;
+          if (i === self.currentIdx) return 12;
+          return 6;
+        });
       })
-      .on('mouseover', function() {
-        d3.select(this).transition().duration(200).attr('r', 8);
-      })
-      .on('mouseout', ((ci) => function(e, d) {
-        const idx = ci.milestones.indexOf(d);
-        const r = idx < ci.currentIdx ? 6 : idx === ci.currentIdx ? 10 : 4;
-        d3.select(this).transition().duration(200).attr('r', r);
-      })(this));
+      .on('mouseout', function(d, i) {
+        d3.select(this).transition().duration(200).attr('r', (d, i) => {
+          if (i < self.currentIdx) return 6;
+          if (i === self.currentIdx) return 10;
+          return 4;
+        });
+      });
+
+    // 为每个 node 添加戳记（如果有完成状态）
+    nodeGroups.each((d, i) => {
+      const completion = this.getCompletionState(i);
+      if (completion.state !== 'none') {
+        d3.select(nodeGroups.nodes()[i])
+          .append('text')
+          .attr('class', 'timeline-stamp')
+          .attr('x', 0)
+          .attr('y', 0)
+          .attr('text-anchor', 'middle')
+          .attr('dy', '0.35em')
+          .attr('font-size', '12px')
+          .attr('font-weight', 'bold')
+          .attr('fill', completion.color)
+          .text(completion.icon);
+      }
+    });
+
+    // 点击事件
+    nodeGroups.on('click', (d, i) => {
+      this.callbacks?.onNodeClick?.(i);
+    });
 
     // 标签
     svg.selectAll('.timeline-label')

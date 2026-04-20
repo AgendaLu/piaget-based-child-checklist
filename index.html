@@ -282,6 +282,37 @@
       display: none;
     }
 
+    /* ── Timeline 彩度降低（降焦） ───────────────────────── */
+    .tl-stamp {
+      font-size: 14px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* 時間軸背景和軌道降彩到 66% */
+    #tl-fill, #d3-timeline-container {
+      opacity: 0.66;
+      transition: opacity 0.2s ease;
+    }
+
+    /* 時間軸節點選中時恢復彩度 */
+    #tl-nodes .tl-node.active {
+      opacity: 1;
+    }
+
+    #tl-nodes .tl-node:not(.active) {
+      opacity: 0.66;
+    }
+
+    /* 進度條軌道降彩 */
+    .bg-border.rounded-full {
+      opacity: 0.66;
+    }
+
     /* ── Dark mode ──────────────────────────────────────── */
     :root { color-scheme: light dark; }
 
