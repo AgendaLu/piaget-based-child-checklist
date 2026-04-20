@@ -208,9 +208,40 @@
 
 </div>
 
-<!-- ES Module 入口（type="module" 自動 defer） -->
+<!-- D3 库 -->
 <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
-<script type="module" src="./init.js"></script>
+
+<!-- 应用脚本（按顺序加载） -->
+<script type="module">
+  (async () => {
+    try {
+      const appModule = await import('./app.js');
+      const drawerModule = await import('./drawer.js');
+      const timelineModule = await import('./timeline.js');
+
+      window.saveAndStart = appModule.saveAndStart;
+      window.changeProfile = appModule.changeProfile;
+      window.resetChecks = appModule.resetChecks;
+      window.initApp = appModule.initApp;
+      window.closePiagetDrawer = drawerModule.closePiagetDrawer;
+      window.openPiagetDrawer = drawerModule.openPiagetDrawer;
+      window.D3Timeline = timelineModule.D3Timeline;
+
+      Object.defineProperty(window, 'currentMilestoneIndex', {
+        get() { return appModule.currentMilestoneIndex; },
+        set(val) { appModule.currentMilestoneIndex = val; }
+      });
+
+      if (localStorage.getItem('baby_name') && localStorage.getItem('baby_dob')) {
+        window.initApp();
+      }
+
+      console.log('[init] Ready');
+    } catch (err) {
+      console.error('[init] Error:', err.message);
+    }
+  })();
+</script>
 
 </body>
 </html>

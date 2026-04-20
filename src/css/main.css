@@ -1,0 +1,106 @@
+@import "tailwindcss";
+
+/* ==========================================
+   Base Adjustments for CJK Typography
+   =========================================== */
+
+@layer base {
+  body {
+    font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
+    @apply text-base text-[oklch(15%_0.05_280)] bg-[oklch(95%_0.01_280)];
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Noto Serif TC', Georgia, serif;
+    @apply font-bold;
+  }
+
+  button {
+    @apply cursor-pointer;
+  }
+
+  input[type="date"],
+  input[type="text"],
+  textarea {
+    @apply w-full px-4 py-3 border border-[oklch(87%_0.02_280)] rounded-lg bg-[oklch(95%_0.01_280)] text-base outline-none transition-colors focus:border-[oklch(15%_0.05_280)] focus:bg-white;
+  }
+}
+
+/* ==========================================
+   Custom Component Layer
+   =========================================== */
+
+@layer components {
+  /* 卡片 */
+  .card {
+    @apply bg-white rounded-lg shadow-sm;
+  }
+
+  .card-elevated {
+    @apply bg-white rounded-lg shadow-md;
+  }
+
+  /* 按钮基础样式 */
+  .btn {
+    @apply inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200;
+  }
+
+  .btn-primary {
+    @apply btn bg-[oklch(15%_0.05_280)] text-white hover:bg-[oklch(20%_0.06_280)] active:scale-95;
+  }
+
+  .btn-secondary {
+    @apply btn bg-[oklch(87%_0.02_280)] text-[oklch(15%_0.05_280)] hover:bg-[oklch(85%_0.02_280)] active:scale-95;
+  }
+
+  /* 徽章 */
+  .badge {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap;
+  }
+
+  /* 进度条 */
+  .progress-bar {
+    @apply h-2 bg-[oklch(87%_0.02_280)] rounded-full overflow-hidden;
+  }
+
+  .progress-fill {
+    @apply h-full rounded-full transition-all duration-300;
+  }
+
+  /* 文本变体 */
+  .text-muted {
+    @apply text-[oklch(65%_0.06_280)];
+  }
+
+  .text-soft {
+    @apply text-[oklch(45%_0.08_280)];
+  }
+}
+
+/* ==========================================
+   Custom Utilities
+   =========================================== */
+
+@layer utilities {
+  .container-tight {
+    @apply max-w-96 mx-auto;
+  }
+
+  .container-content {
+    @apply max-w-2xl mx-auto;
+  }
+
+  .container-wide {
+    @apply max-w-5xl mx-auto;
+  }
+
+  .safe-area-inset-bottom {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+
+  .transition-smooth {
+    @apply transition-all duration-200 ease-out;
+  }
+}

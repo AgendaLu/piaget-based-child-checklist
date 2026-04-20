@@ -2,13 +2,14 @@
 // js/drawer.js
 // 皮亞傑側邊抽屜：開關、內容渲染
 // ─────────────────────────────────────────
-import { PIAGET_DATA, PIAGET_KEY_MAP, PIAGET_STAGE_MAP } from './piaget.js';
+import { PIAGET_DATA, PIAGET_KEY_MAP, PIAGET_STAGE_MAP } from '../data/piaget.js';
+import { currentMilestoneIndex } from './app.js';
 
 // ─────────────────────────────────────────
 // 開啟抽屜（由 app.js 透過 window 代理呼叫）
 // ─────────────────────────────────────────
 export function openPiagetDrawer() {
-  const idx = window.currentMilestoneIndex;
+  const idx = currentMilestoneIndex;
   const pk  = PIAGET_KEY_MAP[idx];
   const pd  = PIAGET_DATA[pk];
 
@@ -20,8 +21,8 @@ export function openPiagetDrawer() {
   // 渲染 body
   renderDrawerBody(pd, idx);
 
-  document.getElementById('piaget-overlay').classList.remove('hidden');
-  document.getElementById('piaget-drawer').classList.remove('hidden');
+  document.getElementById('piaget-overlay').classList.add('open');
+  document.getElementById('piaget-drawer').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
 
@@ -29,8 +30,8 @@ export function openPiagetDrawer() {
 // 關閉抽屜
 // ─────────────────────────────────────────
 export function closePiagetDrawer() {
-  document.getElementById('piaget-overlay').classList.add('hidden');
-  document.getElementById('piaget-drawer').classList.add('hidden');
+  document.getElementById('piaget-overlay').classList.remove('open');
+  document.getElementById('piaget-drawer').classList.remove('open');
   document.body.style.overflow = '';
 }
 
