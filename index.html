@@ -865,6 +865,15 @@
     <h3 class="text-sm font-semibold text-ink-soft uppercase tracking-wide mb-4" id="upcoming-title">即將到來的里程碑</h3>
     <div class="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mb-8" id="upcoming-grid"></div>
 
+    <!-- Past milestones toggle -->
+    <button onclick="togglePastMilestones()" class="px-4 py-2 bg-border text-ink text-sm font-medium rounded-lg hover:bg-border/80 transition-colors mb-8">查看過往里程碑</button>
+
+    <!-- Past milestones grid (initially hidden) -->
+    <div id="past-milestones-container" class="hidden">
+      <h3 class="text-sm font-semibold text-ink-soft uppercase tracking-wide mb-4">過往里程碑</h3>
+      <div class="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mb-8" id="past-grid"></div>
+    </div>
+
     <button onclick="resetChecks()" class="px-4 py-2 bg-border text-ink text-sm font-medium rounded-lg hover:bg-border/80 transition-colors">重設勾選狀態</button>
 
   </div><!-- /content -->
