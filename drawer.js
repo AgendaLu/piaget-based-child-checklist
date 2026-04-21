@@ -158,7 +158,6 @@ function renderAccordionContent(stageData) {
       </button>
       <div class="piaget-accordion-content collapsed">
         <div class="schema-link-box">
-          <div class="schema-link-icon">🔗</div>
           <div class="schema-link-text">${stageData.schemaLink}</div>
         </div>
       </div>
