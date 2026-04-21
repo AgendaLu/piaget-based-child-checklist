@@ -289,13 +289,25 @@
 
 /* ─── Drawer Body Components ─── */
 .schema-link-box {
-  background: #EEF2F8; border: 1px solid #B0C4DE; border-radius: 12px;
-  padding: 16px 18px; margin-bottom: 24px;
-  display: flex; gap: 12px; align-items: flex-start;
+  background: linear-gradient(135deg, #E8F4FF 0%, #F0E8FF 100%);
+  border: 2px solid oklch(60% 0.20 200);
+  border-radius: 12px;
+  padding: 18px 20px;
+  margin-bottom: 24px;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  box-shadow: 0 4px 12px rgba(96, 165, 250, 0.15), 0 1px 3px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
 }
-.schema-link-icon { font-size: 22px; flex-shrink: 0; margin-top: 1px; }
-.schema-link-text { font-size: 13px; color: #49454F; line-height: 1.7; }
-.schema-link-text strong { color: #3D5A80; }
+.schema-link-box:hover {
+  border-color: oklch(65% 0.22 210);
+  box-shadow: 0 6px 16px rgba(96, 165, 250, 0.2), 0 2px 4px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+.schema-link-icon { font-size: 24px; flex-shrink: 0; margin-top: 2px; }
+.schema-link-text { font-size: 14px; color: #1D1B20; line-height: 1.7; font-weight: 500; }
+.schema-link-text strong { color: oklch(60% 0.20 200); font-weight: 700; }
 
 .drawer-section { margin-bottom: 28px; }
 .drawer-section-title {
