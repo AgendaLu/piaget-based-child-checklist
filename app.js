@@ -526,8 +526,8 @@ function renderUpcoming(currentIdx) {
       ...(m.domains.cognitive|| []).slice(0, 1)
     ];
     card.innerHTML = `
-      <div class="uc-month">${m.label}</div>
-      <div class="uc-label">${m.stageLabel}</div>
+      <div class="uc-week">${m.weekLabel}</div>
+      <div class="uc-month">${m.stageLabel}</div>
       <ul>${highlights.map(h => `<li>${h}</li>`).join('')}</ul>
     `;
     grid.appendChild(card);

@@ -7,7 +7,7 @@
 export const MILESTONES = [
   {
     monthStart: 0, monthEnd: 1,
-    label: "新生兒期", stageLabel: "新生兒 0–4週",
+    label: "新生兒期", stageLabel: "新生兒 0–4週", weekLabel: "0–4 週",
     domains: {
       gross:     ["仰臥時頭可短暫轉向側面以保持呼吸道暢通", "四肢呈屈曲姿勢，具備原始反射（抓握、驚嚇、踏步）", "俯臥時下巴可短暫離床"],
       fine:      ["手掌碰觸即出現抓握反射", "對放入手中的物件有短暫握持"],
@@ -19,7 +19,7 @@ export const MILESTONES = [
   },
   {
     monthStart: 1, monthEnd: 3,
-    label: "2個月", stageLabel: "1–2個月",
+    label: "2個月", stageLabel: "1–2個月", weekLabel: "4–8 週",
     domains: {
       gross:     ["俯臥時頭可抬起約45度並維持數秒", "腿部踢踹動作增加且較有力", "拉坐時頭部稍可控制（仍有落後）"],
       fine:      ["手不再總是握拳，偶爾張開", "手指可短暫接觸眼前物品"],
@@ -31,7 +31,7 @@ export const MILESTONES = [
   },
   {
     monthStart: 3, monthEnd: 5,
-    label: "4個月", stageLabel: "3–4個月",
+    label: "4個月", stageLabel: "3–4個月", weekLabel: "12–16 週",
     domains: {
       gross:     ["俯臥時頭可穩定抬起90度，以前臂撐起胸部", "仰臥時嘗試抬頭看自己的腳", "拉坐時頭部不再落後，可與身體保持一直線"],
       fine:      ["雙手可在中線合在一起玩", "伸手搆向眼前的物品", "將物品放入口中探索"],
@@ -43,7 +43,7 @@ export const MILESTONES = [
   },
   {
     monthStart: 5, monthEnd: 7,
-    label: "6個月", stageLabel: "5–6個月",
+    label: "6個月", stageLabel: "5–6個月", weekLabel: "20–24 週",
     domains: {
       gross:     ["俯臥時雙手撐起，胸腹離地", "可翻身：仰臥→俯臥（雙向）", "在支撐下可短暫坐立（tripod坐姿）", "扶腋下站立時雙腿可承重片刻"],
       fine:      ["以整手掌抓握玩具", "雙手分別握物，可換手", "伸手抓物準確度提升"],
@@ -55,7 +55,7 @@ export const MILESTONES = [
   },
   {
     monthStart: 7, monthEnd: 10,
-    label: "9個月", stageLabel: "7–9個月",
+    label: "9個月", stageLabel: "7–9個月", weekLabel: "28–36 週",
     domains: {
       gross:     ["可獨立坐穩，雙手自由操作玩具", "腹部或四肢爬行（個體差異大）", "扶物站立，並可側移步伐", "從坐姿拉扶東西站起來"],
       fine:      ["出現拇指與食指鉗形抓握（初步）", "雙手可互敲玩具", "將物品有意識地放入容器"],
@@ -67,7 +67,7 @@ export const MILESTONES = [
   },
   {
     monthStart: 10, monthEnd: 13,
-    label: "12個月", stageLabel: "10–12個月",
+    label: "12個月", stageLabel: "10–12個月", weekLabel: "40–48 週",
     domains: {
       gross:     ["可獨立站立數秒", "扶物或單手扶持行走", "部分孩子開始獨立行走（±3個月屬正常範圍）", "從站姿蹲下再站起"],
       fine:      ["精確鉗形抓握（拇食指尖對尖）", "以食指戳點物品", "模仿放東西入瓶、疊積木2塊"],
@@ -79,7 +79,7 @@ export const MILESTONES = [
   },
   {
     monthStart: 13, monthEnd: 16,
-    label: "15個月", stageLabel: "13–15個月",
+    label: "15個月", stageLabel: "13–15個月", weekLabel: "52–60 週",
     domains: {
       gross:     ["獨立行走穩定，跌倒次數減少", "可蹲下撿物再站起", "可推拉玩具行走", "爬樓梯（需大人扶持，雙腳同一階）"],
       fine:      ["疊積木2–3塊", "自發塗鴉（握筆塗抹紙張）", "翻書頁（可能一次翻多頁）", "將小物放入瓶中再倒出"],
@@ -91,7 +91,7 @@ export const MILESTONES = [
   },
   {
     monthStart: 16, monthEnd: 19,
-    label: "18個月", stageLabel: "16–18個月",
+    label: "18個月", stageLabel: "16–18個月", weekLabel: "64–72 週",
     domains: {
       gross:     ["獨立行走穩定，可小跑步", "可坐在小椅子上", "扶欄杆爬樓梯（雙腳同一階）", "可踢靜止的球"],
       fine:      ["疊積木3–4塊", "握筆模仿畫直線", "翻書頁較準確", "可自行用湯匙舀食物（灑落多）"],
@@ -103,7 +103,7 @@ export const MILESTONES = [
   },
   {
     monthStart: 19, monthEnd: 22,
-    label: "21個月", stageLabel: "19–21個月",
+    label: "21個月", stageLabel: "19–21個月", weekLabel: "76–84 週",
     domains: {
       gross:     ["跑步更穩，可轉向", "可踢靜止的球（較準確）", "扶手上樓梯（交替腳在發展中）", "可拋球（雙手向前）"],
       fine:      ["疊積木5–6塊", "模仿畫水平線", "開始自行脫鞋（魔鬼氈）", "翻書頁一次一頁"],
@@ -115,7 +115,7 @@ export const MILESTONES = [
   },
   {
     monthStart: 22, monthEnd: 25,
-    label: "24個月", stageLabel: "22–24個月",
+    label: "24個月", stageLabel: "22–24個月", weekLabel: "88–96 週",
     domains: {
       gross:     ["跑步穩定，可急停轉向", "可雙腳跳離地", "上下樓梯扶欄杆（雙腳同一階）", "可踢移動中的球"],
       fine:      ["疊積木6–8塊", "模仿畫圓", "可穿大扣子或串大珠子", "用湯匙進食灑落明顯減少", "可自行脫下簡單衣物"],
