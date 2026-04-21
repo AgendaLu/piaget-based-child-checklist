@@ -616,7 +616,11 @@
         background: oklch(22% 0.02 280);
         border-color: oklch(40% 0.04 280);
       }
+      .todo-item:hover { background: oklch(26% 0.03 280); }
       .todo-item:hover .todo-checkbox { border-color: oklch(64% 0.06 280); }
+      .todo-item.locked:hover { background: transparent; }
+      .stage-dropdown-item:hover { background: oklch(26% 0.03 280); }
+      .stage-dropdown-item.active { background: oklch(28% 0.05 260); }
       .todo-item.locked .todo-checkbox {
         background: oklch(28% 0.02 280);
         border-color: oklch(28% 0.02 280);
