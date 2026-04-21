@@ -458,29 +458,31 @@
   border-radius: 2px; flex-shrink: 0;
 }
 
-/* ─── Date Input (Setup Screen) ─── */
+/* ─── Setup Screen Inputs ─── */
+#baby-name-input,
 #birth-date-input {
+  box-sizing: border-box;
+  width: 100%;
+  display: block;
   font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
   line-height: 1.5;
 }
 
-/* Ensure proper date picker appearance on mobile */
+/* 統一 calendar icon 外觀 */
 #birth-date-input::-webkit-calendar-picker-indicator {
   cursor: pointer;
-  border-radius: 4px;
-  margin-right: 2px;
-  opacity: 0.6;
-  filter: invert(0.8);
+  opacity: 0.5;
+  flex-shrink: 0;
 }
 
-#birth-date-input::-webkit-calendar-picker-indicator:hover {
-  opacity: 1;
-}
-
-/* iOS 和 Android date input 最小高度 */
-@supports (-webkit-touch-callout: none) {
+/* iOS Safari：防縮放 + 統一高度對齊 */
+@media screen and (max-width: 640px) {
+  #baby-name-input,
   #birth-date-input {
-    font-size: 16px;
+    font-size: 16px !important; /* 防止 iOS 自動縮放頁面 */
+    min-height: 44px;           /* iOS 觸控最小高度規範 */
+    padding-top: 0;
+    padding-bottom: 0;
   }
 }
 

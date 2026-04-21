@@ -326,8 +326,10 @@ function handleTimelineCardClick(stageKey) {
   document.getElementById('piaget-modal-stage').textContent =
     `${stageData.piagetStage} · ${stageData.piagetSub} (${stageData.piagetAge})`;
 
-  // 重新設置手風琴事件
+  // 重新設置手風琴事件，並預設展開「理論闡述」
+  openAccordions.clear();
   setupAccordionToggle();
+  expandTheoryAccordion();
   console.log('Stage switched to:', stageKey);
 }
 
