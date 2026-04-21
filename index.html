@@ -91,6 +91,10 @@
       background: white;
       transition: all 0.2s ease;
       margin-top: 2px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .todo-item:hover .todo-checkbox {
@@ -106,9 +110,11 @@
     .todo-item.done-normal .todo-checkbox::after {
       content: '✓';
       position: absolute;
-      top: -3px;
-      left: 3px;
-      color: white;
+      right: 100%;
+      top: 50%;
+      transform: translateY(-50%);
+      margin-right: 2px;
+      color: oklch(65% 0.25 142);
       font-weight: bold;
       font-size: 14px;
     }
@@ -122,9 +128,11 @@
     .todo-item.done-retro .todo-checkbox::after {
       content: '⟲';
       position: absolute;
-      top: -4px;
-      left: 2px;
-      color: white;
+      right: 100%;
+      top: 50%;
+      transform: translateY(-50%);
+      margin-right: 2px;
+      color: oklch(70% 0.15 20);
       font-weight: bold;
       font-size: 13px;
     }
@@ -138,9 +146,11 @@
     .todo-item.done-intermediate .todo-checkbox::after {
       content: '⏱';
       position: absolute;
-      top: -3px;
-      left: 3px;
-      color: white;
+      right: 100%;
+      top: 50%;
+      transform: translateY(-50%);
+      margin-right: 2px;
+      color: oklch(65% 0.20 200);
       font-weight: bold;
       font-size: 13px;
     }
