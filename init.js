@@ -9,8 +9,8 @@ import { D3Timeline } from './timeline.js';
 window.saveAndStart = appModule.saveAndStart;
 window.changeProfile = appModule.changeProfile;
 window.resetChecks = appModule.resetChecks;
-window.openPiagetDrawer = drawerModule.openPiagetDrawer;
-window.closePiagetDrawer = drawerModule.closePiagetDrawer;
+window.openPiagetModal = drawerModule.openPiagetModal;
+window.closePiagetModal = drawerModule.closePiagetModal;
 window.toggleTimeline = () => {};
 
 // 创建包装的 initApp 来处理 D3 初始化

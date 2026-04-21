@@ -5,7 +5,7 @@
 // ─────────────────────────────────────────
 import { MILESTONES, DOMAIN_META } from './milestones.js';
 import { PIAGET_KEY_MAP, PIAGET_DATA } from './piaget.js';
-import { openPiagetDrawer } from './drawer.js';
+import { openPiagetModal } from './drawer.js';
 import { PERCENTILE_DATA, getPercentilePosition, getPositionLabel } from './percentile-distribution.js';
 import { D3Timeline } from './timeline.js';
 
@@ -554,7 +554,7 @@ window.saveAndStart      = saveAndStart;
 window.changeProfile     = changeProfile;
 window.resetChecks       = resetChecks;
 window.toggleTimeline    = toggleTimeline;
-window.openPiagetDrawer  = openPiagetDrawer;
+window.openPiagetModal   = openPiagetModal;
 window.calcAge           = calcAge;
 window.getMilestoneIndex = getMilestoneIndex;
 window.renderTodoCard    = renderTodoCard;

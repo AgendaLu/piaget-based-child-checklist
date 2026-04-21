@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>寶寶發展追蹤｜個人化里程碑</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&family=Noto+Sans+TC:wght@300;400;500;600&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="theme.css">
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -313,6 +314,165 @@
       opacity: 0.66;
     }
 
+    /* ── 皮亞傑認知發展模態 ───────────────────────── */
+    #piaget-modal {
+      animation: slideUp 0.3s ease-out;
+    }
+
+    #piaget-modal.hidden,
+    #piaget-modal-overlay.hidden {
+      display: none;
+    }
+
+    /* 時間軸卡片 */
+    .piaget-timeline-card {
+      padding: 12px;
+      border-radius: 8px;
+      border-left: 3px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      user-select: none;
+      min-width: 0;
+    }
+
+    .piaget-timeline-card:hover {
+      background: oklch(91% 0.05 280);
+    }
+
+    .piaget-timeline-card.active {
+      background: oklch(91% 0.08 280);
+      border-left-color: oklch(60% 0.20 200);
+    }
+
+    .piaget-timeline-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 8px;
+      flex-shrink: 0;
+    }
+
+    .piaget-timeline-dot.past {
+      background: oklch(65% 0.25 142);
+    }
+
+    .piaget-timeline-dot.current {
+      background: oklch(60% 0.20 200);
+    }
+
+    .piaget-timeline-dot.future {
+      background: transparent;
+      border: 2px solid oklch(87% 0.02 280);
+      width: 6px;
+      height: 6px;
+      margin-left: 1px;
+    }
+
+    /* 手風琴 */
+    .piaget-accordion-header {
+      padding: 12px 0;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid oklch(87% 0.02 280);
+      transition: color 0.2s ease;
+      user-select: none;
+    }
+
+    .piaget-accordion-header:hover {
+      color: oklch(60% 0.20 200);
+    }
+
+    .piaget-accordion-toggle {
+      display: inline-block;
+      font-size: 12px;
+      transition: transform 0.3s ease;
+      flex-shrink: 0;
+    }
+
+    .piaget-accordion-toggle.collapsed {
+      transform: rotate(-90deg);
+    }
+
+    .piaget-accordion-content {
+      max-height: 1000px;
+      overflow: hidden;
+      transition: max-height 0.3s ease, padding 0.3s ease;
+      padding-top: 12px;
+    }
+
+    .piaget-accordion-content.collapsed {
+      max-height: 0;
+      padding-top: 0;
+      padding-bottom: 0;
+      visibility: hidden;
+    }
+
+    /* 內容卡片重複使用 schema-link 等樣式 */
+    .piaget-schema-link {
+      display: flex;
+      gap: 12px;
+      padding: 16px;
+      background: oklch(93% 0.05 280);
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+
+    .piaget-schema-icon {
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .piaget-schema-text {
+      font-size: 14px;
+      line-height: 1.5;
+      color: oklch(35% 0.08 280);
+    }
+
+    /* 響應式設計 - 移動優先 */
+    @media (max-width: 640px) {
+      #piaget-modal {
+        flex-direction: column;
+      }
+
+      #piaget-timeline-mobile {
+        display: flex !important;
+        flex-wrap: wrap;
+      }
+
+      .piaget-timeline-card {
+        flex: 0 1 calc(50% - 4px);
+      }
+
+      #piaget-modal-body {
+        min-height: 0;
+      }
+    }
+
+    @media (min-width: 641px) {
+      #piaget-timeline-mobile {
+        display: none !important;
+      }
+
+      #piaget-timeline {
+        display: flex !important;
+      }
+    }
+
+    @keyframes slideUp {
+      from {
+        transform: translateY(10px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
     /* ── 即將到來的里程碑卡片 ───────────────────────── */
     .upcoming-card {
       background: oklch(99% 0.001 0);
@@ -470,6 +630,135 @@
       .shadow-sm  { box-shadow: 0 1px 3px oklch(0% 0 0 / 0.4) !important; }
       .shadow-lg  { box-shadow: 0 10px 30px oklch(0% 0 0 / 0.5) !important; }
       .shadow-xl  { box-shadow: 0 20px 40px oklch(0% 0 0 / 0.6) !important; }
+
+      /* ── Piaget Modal Dark Mode ── */
+      #piaget-modal { background: oklch(19% 0.02 280); }
+
+      .piaget-timeline-card:hover {
+        background: oklch(28% 0.02 280);
+      }
+
+      .piaget-timeline-card.active {
+        background: oklch(28% 0.02 280);
+        border-left-color: oklch(65% 0.18 200);
+      }
+
+      .piaget-accordion-header {
+        border-color: oklch(30% 0.02 280);
+        color: oklch(88% 0.02 280);
+      }
+
+      .piaget-accordion-header:hover {
+        color: oklch(65% 0.18 200);
+      }
+
+      .piaget-schema-link {
+        background: oklch(25% 0.02 280);
+      }
+
+      .piaget-schema-text {
+        color: oklch(72% 0.04 280);
+      }
+    }
+
+    /* 移動端時間軸抽屜 */
+    #piaget-timeline-drawer {
+      box-shadow: 2px 0 8px oklch(0% 0 0 / 0.15);
+    }
+
+    #piaget-timeline-drawer.open {
+      transform: translateX(0);
+    }
+
+    #piaget-timeline-overlay.open {
+      display: block;
+    }
+
+    /* 簡化的時間軸卡片（移動版） */
+    .piaget-timeline-card-mobile {
+      padding: 12px;
+      border-radius: 8px;
+      border-left: 3px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+      min-width: 100%;
+    }
+
+    .piaget-timeline-card-mobile:hover {
+      background: oklch(91% 0.05 280);
+    }
+
+    .piaget-timeline-card-mobile.active {
+      background: oklch(91% 0.08 280);
+      border-left-color: oklch(60% 0.20 200);
+    }
+
+    .piaget-timeline-card-mobile .stage-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 8px;
+    }
+
+    .piaget-timeline-card-mobile .stage-dot.past {
+      background: oklch(65% 0.25 142);
+    }
+
+    .piaget-timeline-card-mobile .stage-dot.current {
+      background: oklch(60% 0.20 200);
+    }
+
+    .piaget-timeline-card-mobile .stage-dot.future {
+      background: transparent;
+      border: 2px solid oklch(87% 0.02 280);
+      width: 6px;
+      height: 6px;
+      margin-left: 1px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      #piaget-timeline-drawer {
+        background: oklch(19% 0.02 280);
+      }
+
+      .piaget-timeline-card-mobile:hover {
+        background: oklch(28% 0.02 280);
+      }
+
+      .piaget-timeline-card-mobile.active {
+        background: oklch(28% 0.02 280);
+        border-left-color: oklch(65% 0.18 200);
+      }
+
+      .piaget-timeline-card-mobile .stage-dot.future {
+        border-color: oklch(30% 0.02 280);
+      }
+
+      /* Concept Chip Dark Mode */
+      .concept-chip {
+        background: oklch(22% 0.03 280);
+        border-color: oklch(30% 0.02 280);
+      }
+
+      .concept-chip:hover {
+        background: oklch(25% 0.03 280);
+        border-color: oklch(38% 0.02 280);
+      }
+
+      .concept-chip-name {
+        color: oklch(92% 0.02 280);
+      }
+
+      .concept-chip-desc {
+        color: oklch(68% 0.05 280);
+      }
+
+      .concept-chip-example {
+        color: oklch(60% 0.08 280);
+        border-left-color: oklch(45% 0.08 280);
+      }
     }
   </style>
 </head>
@@ -501,21 +790,16 @@
 <div id="app-screen" class="hidden">
 
   <!-- TOPBAR -->
-  <div class="sticky top-0 z-50 bg-ink text-surface px-8 py-5 flex items-center gap-5 border-b border-ink-soft">
+  <div class="sticky top-0 z-50 bg-ink text-surface px-4 sm:px-8 py-4 sm:py-5 flex items-center gap-3 sm:gap-5 border-b border-ink-soft">
     <div class="flex-1">
-      <div class="font-mono text-xs uppercase tracking-widest text-retro">Baby Development Tracker</div>
-      <div class="font-display text-xl font-bold text-surface" id="display-name">寶寶</div>
+      <div class="font-mono text-xs uppercase tracking-widest text-retro hidden sm:block">Baby Development Tracker</div>
+      <div class="font-display text-lg sm:text-xl font-bold text-surface" id="display-name">寶寶</div>
     </div>
-    <div class="bg-retro text-white px-5 py-2 rounded-full text-center">
-      <div class="font-mono text-lg font-semibold" id="display-age">0m 0w</div>
-      <div class="text-xs opacity-85" id="display-age-exact">0個月 0週</div>
+    <div class="bg-retro text-white px-3 sm:px-5 py-2 rounded-full text-center whitespace-nowrap">
+      <div class="font-mono text-sm sm:text-lg font-semibold" id="display-age">0m 0w</div>
+      <div class="text-xs opacity-85 hidden sm:block" id="display-age-exact">0個月 0週</div>
     </div>
-    <button onclick="changeProfile()" class="px-4 py-2 text-sm font-medium rounded-lg hover:bg-ink-soft transition-colors">更改資料</button>
-  </div>
-
-  <!-- TIMELINE BAR（吸頂，D3 時間軸） -->
-  <div class="sticky top-16 z-40 bg-surface border-b border-border">
-    <div id="d3-timeline-container" style="width: 100%; height: 120px;"></div>
+    <button onclick="changeProfile()" class="px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-lg hover:bg-ink-soft transition-colors whitespace-nowrap">更改資料</button>
   </div>
 
   <!-- MAIN CONTENT -->
@@ -551,7 +835,7 @@
 
       <!-- Piaget trigger -->
       <div class="mt-6 pt-6 border-t border-border">
-        <button onclick="openPiagetDrawer()" class="w-full flex items-center gap-4 p-4 bg-piaget-light rounded-lg hover:bg-piaget/10 transition-colors">
+        <button onclick="openPiagetModal()" class="w-full flex items-center gap-4 p-4 bg-piaget-light rounded-lg hover:bg-piaget/10 transition-colors">
           <span class="text-2xl">🔬</span>
           <div class="text-left flex-1">
             <div class="text-sm font-semibold text-piaget">延伸探索 — 皮亞傑認知發展</div>
@@ -572,39 +856,47 @@
 </div><!-- /app-screen -->
 
 <!-- ══════════════════════════════════════
-     PIAGET DRAWER
+     PIAGET MODAL - FULL SCREEN
      ══════════════════════════════════════ -->
-<div id="piaget-overlay" onclick="closePiagetDrawer()" class="hidden fixed inset-0 bg-black/50 z-50"></div>
+<!-- Modal Overlay -->
+<div id="piaget-modal-overlay" onclick="closePiagetModal()" class="hidden fixed inset-0 bg-black/50 z-50 transition-opacity"></div>
 
-<div id="piaget-drawer" role="dialog" aria-modal="true" aria-label="皮亞傑認知發展延伸探索" class="hidden fixed right-0 top-0 h-full w-full max-w-lg bg-surface shadow-xl z-50 overflow-y-auto">
+<!-- Full-Screen Modal -->
+<div id="piaget-modal" role="dialog" aria-modal="true" aria-label="皮亞傑認知發展理論" class="hidden fixed inset-0 z-50 overflow-y-auto bg-surface flex flex-col">
 
-  <div class="sticky top-0 z-10 bg-surface border-b border-border p-6">
-    <div class="flex justify-between items-start mb-4">
-      <div>
-        <div class="text-xs font-semibold text-piaget uppercase tracking-wide mb-2">延伸探索 · Piaget Framework</div>
-        <h2 class="font-display text-2xl font-bold text-ink">
-          認知發展理論
-          <span class="block text-xs text-ink-soft font-normal mt-1" id="drawer-stage-subtitle">Jean Piaget · 1896–1980</span>
-        </h2>
+  <!-- Header (Sticky) -->
+  <div class="sticky top-0 bg-surface border-b border-border z-20 px-6 py-4">
+    <div class="flex justify-between items-start">
+      <!-- Mobile hamburger (shown only on mobile) -->
+      <button id="piaget-timeline-toggle" onclick="togglePiagetTimeline()" class="md:hidden text-2xl text-ink-soft hover:text-ink transition-colors mr-3" aria-label="時間軸">☰</button>
+
+      <div class="flex-1">
+        <h1 class="font-display text-2xl font-bold text-ink">皮亞傑認知發展理論</h1>
+        <p class="text-sm text-ink-soft mt-2" id="piaget-modal-stage">感覺動作期 · 第一階段：反射練習期 (0–1 個月)</p>
       </div>
-      <button onclick="closePiagetDrawer()" class="text-xl text-ink-soft hover:text-ink" aria-label="關閉">✕</button>
-    </div>
-    <div class="flex items-center gap-3 px-4 py-3 bg-piaget-light rounded-lg">
-      <div class="w-3 h-3 rounded-full bg-piaget"></div>
-      <span class="text-sm font-semibold text-piaget" id="drawer-piaget-stage">感覺動作期</span>
-      <span class="text-xs text-ink-soft" id="drawer-piaget-age">0–2 歲</span>
+      <button onclick="closePiagetModal()" class="text-2xl text-ink-soft hover:text-ink transition-colors ml-4" aria-label="關閉">✕</button>
     </div>
   </div>
 
-  <div class="p-6" id="drawer-body-content">
-    <!-- dynamically rendered by drawer.js -->
-  </div>
+  <!-- Content Area - Responsive Layout -->
+  <div class="flex flex-1 min-h-0 relative">
+    <!-- Timeline Sidebar (Desktop version - Hidden on mobile) -->
+    <aside id="piaget-timeline" class="hidden md:flex md:w-1/3 md:border-r md:border-border md:overflow-y-auto md:flex-col p-4 gap-2">
+      <!-- Timeline cards generated by JS -->
+    </aside>
 
-  <div class="px-6 py-4 bg-bg border-t border-border">
-    <p class="text-xs text-ink-faint leading-relaxed">
-      皮亞傑階段為認知發展方向參考，非診斷工具。<br>
-      個體節奏有差異，階段順序固定但速度因人而異。
-    </p>
+    <!-- Timeline Drawer (Mobile version - Hidden on desktop) -->
+    <div id="piaget-timeline-drawer" class="md:hidden fixed inset-y-0 left-0 w-64 bg-surface border-r border-border z-40 transform -translate-x-full transition-transform duration-300 overflow-y-auto flex flex-col p-4 gap-2" style="top: var(--header-height, 80px)">
+      <!-- Mobile timeline cards generated by JS -->
+    </div>
+
+    <!-- Mobile drawer overlay (backdrop) -->
+    <div id="piaget-timeline-overlay" class="md:hidden hidden fixed inset-0 bg-black/30 z-30" onclick="togglePiagetTimeline()" style="top: var(--header-height, 80px)"></div>
+
+    <!-- Main Content Area -->
+    <div id="piaget-modal-body" class="flex-1 overflow-y-auto p-6">
+      <!-- Accordion content generated by JS -->
+    </div>
   </div>
 
 </div>
@@ -624,8 +916,8 @@
       window.changeProfile = appModule.changeProfile;
       window.resetChecks = appModule.resetChecks;
       window.initApp = appModule.initApp;
-      window.closePiagetDrawer = drawerModule.closePiagetDrawer;
-      window.openPiagetDrawer = drawerModule.openPiagetDrawer;
+      window.closePiagetModal = drawerModule.closePiagetModal;
+      window.openPiagetModal = drawerModule.openPiagetModal;
       window.D3Timeline = timelineModule.D3Timeline;
 
       Object.defineProperty(window, 'currentMilestoneIndex', {
