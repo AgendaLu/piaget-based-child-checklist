@@ -29,7 +29,8 @@
       "Bash(git pull *)",
       "Bash(git checkout *)",
       "Bash(git commit *)",
-      "Bash(gh pr create --title 'Percentile-based milestone tracking with dark mode' --body ' *)"
+      "Bash(gh pr create --title 'Percentile-based milestone tracking with dark mode' --body ' *)",
+      "Bash(gh pr *)"
     ]
   }
 }

@@ -12,6 +12,7 @@ import { D3Timeline } from './timeline.js';
 // ── 狀態 ──────────────────────────────────
 export let currentMilestoneIndex = 0;  // drawer.js 也需要讀取
 let timelineOpen = false;
+let pastMilestonesOpen = false;
 let d3Timeline = null;  // D3Timeline 實例
 
 // ── localStorage 鍵名 ─────────────────────
@@ -128,6 +129,7 @@ export function initApp() {
   renderTimeline(idx);
   renderTodoCard(idx, age, 'current');
   renderUpcoming(idx);
+  renderPast(idx);
 }
 
 // ─────────────────────────────────────────
@@ -535,6 +537,56 @@ function renderUpcoming(currentIdx) {
 }
 
 // ─────────────────────────────────────────
+// Past milestones grid
+// ─────────────────────────────────────────
+function renderPast(currentIdx) {
+  const grid = document.getElementById('past-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+
+  const pastOnes = MILESTONES.slice(0, currentIdx);
+  if (!pastOnes.length) return;
+
+  pastOnes.forEach((m, i) => {
+    const card       = document.createElement('div');
+    card.className   = 'upcoming-card cursor-pointer hover:shadow-md transition-shadow';
+    const highlights = [
+      ...(m.domains.gross    || []).slice(0, 1),
+      ...(m.domains.language || []).slice(0, 1),
+      ...(m.domains.cognitive|| []).slice(0, 1)
+    ];
+    card.innerHTML = `
+      <div class="uc-week">${m.weekLabel}</div>
+      <div class="uc-month">${m.stageLabel}</div>
+      <ul>${highlights.map(h => `<li>${h}</li>`).join('')}</ul>
+    `;
+    card.addEventListener('click', () => onPastCardClick(i));
+    grid.appendChild(card);
+  });
+}
+
+function togglePastMilestones() {
+  pastMilestonesOpen = !pastMilestonesOpen;
+  const container = document.getElementById('past-milestones-container');
+  if (container) {
+    container.classList.toggle('hidden', !pastMilestonesOpen);
+  }
+}
+
+function onPastCardClick(pastIdx) {
+  const type = 'past';
+  const age = calcAge(localStorage.getItem('baby_dob'));
+
+  renderTodoCard(pastIdx, age, type);
+  document.getElementById('todo-card')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  // 更新時間軸節點的 active 狀態
+  if (d3Timeline) {
+    d3Timeline.setActive(pastIdx);
+  }
+}
+
+// ─────────────────────────────────────────
 // Reset
 // ─────────────────────────────────────────
 export function resetChecks() {
@@ -550,14 +602,15 @@ export function resetChecks() {
 // ─────────────────────────────────────────
 // 掛載到 window（相容 HTML inline handlers）
 // ─────────────────────────────────────────
-window.saveAndStart      = saveAndStart;
-window.changeProfile     = changeProfile;
-window.resetChecks       = resetChecks;
-window.toggleTimeline    = toggleTimeline;
-window.openPiagetModal   = openPiagetModal;
-window.calcAge           = calcAge;
-window.getMilestoneIndex = getMilestoneIndex;
-window.renderTodoCard    = renderTodoCard;
+window.saveAndStart         = saveAndStart;
+window.changeProfile        = changeProfile;
+window.resetChecks          = resetChecks;
+window.toggleTimeline       = toggleTimeline;
+window.togglePastMilestones = togglePastMilestones;
+window.openPiagetModal      = openPiagetModal;
+window.calcAge              = calcAge;
+window.getMilestoneIndex    = getMilestoneIndex;
+window.renderTodoCard       = renderTodoCard;
 
 // ─────────────────────────────────────────
 // DOMContentLoaded 入口
