@@ -458,6 +458,32 @@
   border-radius: 2px; flex-shrink: 0;
 }
 
+/* ─── Date Input (Setup Screen) ─── */
+#birth-date-input {
+  font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.5;
+}
+
+/* Ensure proper date picker appearance on mobile */
+#birth-date-input::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  border-radius: 4px;
+  margin-right: 2px;
+  opacity: 0.6;
+  filter: invert(0.8);
+}
+
+#birth-date-input::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+/* iOS 和 Android date input 最小高度 */
+@supports (-webkit-touch-callout: none) {
+  #birth-date-input {
+    font-size: 16px;
+  }
+}
+
 /* ─── RWD ─── */
 @media (max-width: 600px) {
   #piaget-drawer { width: 100vw; }

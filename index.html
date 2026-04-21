@@ -778,20 +778,20 @@
 <!-- ══════════════════════════════════════
      SETUP SCREEN
      ══════════════════════════════════════ -->
-<div id="setup-screen" class="flex items-center justify-center min-h-screen p-6 bg-bg">
-  <div class="bg-surface rounded-2xl shadow-lg p-12 max-w-96 w-full text-center fade-in">
-    <span class="text-5xl block mb-6">🌱</span>
-    <h1 class="font-display text-3xl font-bold mb-3 text-ink">寶寶發展追蹤</h1>
-    <p class="text-sm text-ink-faint leading-relaxed mb-8">輸入寶寶的姓名與出生日期，每次打開都會根據<strong>實際月齡與週數</strong>顯示當前發展任務清單。</p>
-    <div class="text-left mb-5">
+<div id="setup-screen" class="flex items-center justify-center min-h-screen p-4 sm:p-6 bg-bg">
+  <div class="bg-surface rounded-2xl shadow-lg p-8 sm:p-12 max-w-sm sm:max-w-96 w-full text-center fade-in">
+    <span class="text-4xl sm:text-5xl block mb-4 sm:mb-6">🌱</span>
+    <h1 class="font-display text-2xl sm:text-3xl font-bold mb-2 sm:mb-3 text-ink">寶寶發展追蹤</h1>
+    <p class="text-xs sm:text-sm text-ink-faint leading-relaxed mb-6 sm:mb-8">輸入寶寶的姓名與出生日期，每次打開都會根據<strong>實際月齡與週數</strong>顯示當前發展任務清單。</p>
+    <div class="text-left mb-4 sm:mb-5">
       <label class="block text-xs font-semibold text-ink-soft uppercase tracking-wide mb-2">寶寶的名字</label>
-      <input type="text" id="baby-name-input" placeholder="例：小橘子" maxlength="20" class="w-full px-4 py-3 border border-border rounded-lg bg-bg text-base outline-none transition-colors focus:border-ink focus:bg-surface">
+      <input type="text" id="baby-name-input" placeholder="例：小橘子" maxlength="20" class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-border rounded-lg bg-bg outline-none transition-colors focus:border-ink focus:bg-surface">
     </div>
-    <div class="text-left mb-6">
+    <div class="text-left mb-6 sm:mb-6">
       <label class="block text-xs font-semibold text-ink-soft uppercase tracking-wide mb-2">出生日期</label>
-      <input type="date" id="birth-date-input" class="w-full px-4 py-3 border border-border rounded-lg bg-bg text-base outline-none transition-colors focus:border-ink focus:bg-surface">
+      <input type="date" id="birth-date-input" class="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-border rounded-lg bg-bg outline-none transition-colors focus:border-ink focus:bg-surface font-body">
     </div>
-    <button onclick="saveAndStart()" class="w-full px-4 py-3 bg-ink text-surface font-semibold rounded-lg hover:bg-ink-soft active:scale-95 transition-all">開始追蹤 →</button>
+    <button onclick="saveAndStart()" class="w-full px-4 py-2.5 sm:py-3 text-sm sm:text-base bg-ink text-surface font-semibold rounded-lg hover:bg-ink-soft active:scale-95 transition-all">開始追蹤 →</button>
   </div>
 </div>
 
