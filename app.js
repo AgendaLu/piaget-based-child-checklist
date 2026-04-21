@@ -202,12 +202,12 @@ export function toggleTimeline() {
  * @param {number}  idx - 里程碑索引
  * @returns {object} { minMonth, maxMonth }
  */
-function computeMilestonePercentileRange(idx) {
+function computeMilestonePercentileRange(idx, domain = 'gross') {
   let milestoneMin = Infinity;
   let milestoneMax = -Infinity;
 
   Object.entries(PERCENTILE_DATA).forEach(([key, data]) => {
-    if (key.startsWith(`${idx}_gross_`)) {
+    if (key.startsWith(`${idx}_${domain}_`)) {
       milestoneMin = Math.min(milestoneMin, data.p10);
       milestoneMax = Math.max(milestoneMax, data.p90);
     }
@@ -413,12 +413,12 @@ export function renderTodoCard(idx, age, type) {
 
       section.appendChild(item);
 
-      // ── 百分位條（粗動作 Phase 1，非預覽）
-      if (key === 'gross' && type !== 'future') {
-        const pctKey  = `${idx}_gross_${i}`;
+      // ── 百分位條（粗動作 + 精細動作，非預覽）
+      if ((key === 'gross' || key === 'fine') && type !== 'future') {
+        const pctKey  = `${idx}_${key}_${i}`;
         const ageExact = age.totalDays / 30.44;
-        // 使用里程碑範圍確保同一卡片內時間軸對齐（避免浪費空間）
-        const milestoneRange = computeMilestonePercentileRange(idx);
+        // 使用里程碑範圍確保同一領域內時間軸對齐（避免浪費空間）
+        const milestoneRange = computeMilestonePercentileRange(idx, key);
         const barEl   = renderPercentileBar(pctKey, ageExact, milestoneRange);
         if (barEl) section.appendChild(barEl);
       }

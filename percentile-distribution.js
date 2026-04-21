@@ -300,6 +300,236 @@ export const PERCENTILE_DATA = {
     source: "CLN",
     note: "臨床觀察估計；移動目標踢球需更高動作預測能力，通常在 24 個月後發展"
   },
+
+  // ════════════════════════════════════════
+  // 精細動作（Phase 2）
+  // 資料來源：PDMS-2、Denver II、ASQ-3、神經學反射標準、臨床常規
+  // 使用者研究數據：提供 p10 / p50 / p90，p25/p75 為線性內插估計
+  // ════════════════════════════════════════
+
+  // 里程碑 0：新生兒期 (0–1m)
+  "0_fine_0": {
+    // 抓握反射強烈
+    p10: 0, p25: 0, p50: 0.25, p75: 0.5, p90: 1.0,
+    source: "神經學反射標準",
+    note: "原始抓握反射生後即具備，通常於 3–4 個月自然整合消失；若缺失為警示指標"
+  },
+  "0_fine_1": {
+    // 雙手呈握拳狀態
+    p10: 0, p25: 0.5, p50: 1.0, p75: 1.5, p90: 2.0,
+    source: "PDMS-2",
+    note: "新生兒屈肌張力優勢；隨反射整合，2 個月後手掌開放時間增加"
+  },
+  "0_fine_2": {
+    // 視線追蹤至中線
+    p10: 0.5, p25: 0.75, p50: 1.0, p75: 1.5, p90: 2.0,
+    source: "Denver II",
+    note: "Denver II 視線追蹤至中線（follows to midline）"
+  },
+
+  // 里程碑 1：2個月 (1–3m)
+  "1_fine_0": {
+    // 手掌開始打開
+    p10: 1.0, p25: 1.5, p50: 2.0, p75: 2.75, p90: 3.5,
+    source: "PDMS-2",
+    note: "抓握反射減弱、手掌逐漸張開；為後續主動抓握奠基"
+  },
+  "1_fine_1": {
+    // 視線追蹤過中線
+    p10: 1.5, p25: 2.0, p50: 2.5, p75: 3.25, p90: 4.0,
+    source: "Denver II",
+    note: "Denver II 視線追蹤過中線（follows past midline）"
+  },
+  "1_fine_2": {
+    // 短暫握住塞入的物品
+    p10: 1.5, p25: 2.0, p50: 2.5, p75: 3.25, p90: 4.0,
+    source: "Denver II",
+    note: "Denver II 握住撥浪鼓（grasps rattle）；被動握持早於主動抓取"
+  },
+
+  // 里程碑 2：4個月 (3–5m)
+  "2_fine_0": {
+    // 雙手中線交握
+    p10: 2.0, p25: 2.5, p50: 3.0, p75: 3.5, p90: 4.0,
+    source: "Denver II",
+    note: "Denver II 雙手中線交握（hands together）；身體中線意識發展"
+  },
+  "2_fine_1": {
+    // 主動伸手搆物
+    p10: 3.0, p25: 3.5, p50: 4.0, p75: 4.75, p90: 5.5,
+    source: "Denver II",
+    note: "Denver II 主動伸手（reaches for object）；視動協調整合里程碑"
+  },
+  "2_fine_2": {
+    // 尺側手掌抓握
+    p10: 3.5, p25: 4.0, p50: 4.5, p75: 5.0, p90: 5.5,
+    source: "PDMS-2",
+    note: "抓握發展由尺側（小指側）向橈側（拇指側）推進"
+  },
+  "2_fine_3": {
+    // 吃手或吃玩具
+    p10: 3.0, p25: 3.5, p50: 4.0, p75: 5.0, p90: 6.0,
+    source: "臨床觀察指標",
+    note: "口腔探索期；將物品放入口中是感覺運動階段的重要認知行為"
+  },
+
+  // 里程碑 3：6個月 (5–7m)
+  "3_fine_0": {
+    // 精準抓取物品
+    p10: 4.0, p25: 4.5, p50: 5.0, p75: 5.75, p90: 6.5,
+    source: "Denver II",
+    note: "Denver II 精準伸手抓取（reaches and grasps）；視覺引導動作成熟"
+  },
+  "3_fine_1": {
+    // 雙手傳遞物品
+    p10: 4.5, p25: 5.0, p50: 5.5, p75: 6.5, p90: 7.5,
+    source: "Denver II",
+    note: "Denver II 雙手換物（transfers object hand to hand）"
+  },
+  "3_fine_2": {
+    // 橈側手掌抓握
+    p10: 5.0, p25: 5.5, p50: 6.0, p75: 6.75, p90: 7.5,
+    source: "PDMS-2",
+    note: "抓握中心由尺側移向橈側；為後續鉗狀抓握奠基"
+  },
+  "3_fine_3": {
+    // 耙抓小物品
+    p10: 5.5, p25: 6.0, p50: 6.5, p75: 7.25, p90: 8.0,
+    source: "Denver II",
+    note: "Denver II 耙抓（rakes raisin）；四指屈曲掃入掌心的過渡期抓握"
+  },
+
+  // 里程碑 4：9個月 (7–10m)
+  "4_fine_0": {
+    // 初階鉗狀抓握
+    p10: 7.0, p25: 7.75, p50: 8.5, p75: 9.5, p90: 10.5,
+    source: "Denver II",
+    note: "Denver II 初階鉗狀抓握（inferior pincer grasp）；拇指側邊＋食指指腹"
+  },
+  "4_fine_1": {
+    // 雙手拿物互相敲擊
+    p10: 7.5, p25: 8.25, p50: 9.0, p75: 10.25, p90: 11.5,
+    source: "Denver II",
+    note: "Denver II 兩手拿物互敲（bangs 2 cubes held in hands）"
+  },
+  "4_fine_2": {
+    // 主動放開物品
+    p10: 8.0, p25: 8.75, p50: 9.5, p75: 10.5, p90: 11.5,
+    source: "PDMS-2",
+    note: "自主釋放（voluntary release）；抓握鬆手神經控制發展的重要指標"
+  },
+
+  // 里程碑 5：12個月 (10–13m)
+  "5_fine_0": {
+    // 成熟鉗狀抓握
+    p10: 9.0, p25: 9.75, p50: 10.5, p75: 11.5, p90: 12.5,
+    source: "PDMS-2",
+    note: "成熟鉗狀抓握（neat pincer grasp）：拇指與食指指尖對尖"
+  },
+  "5_fine_1": {
+    // 將物品放入容器
+    p10: 9.0, p25: 9.75, p50: 10.5, p75: 11.5, p90: 12.5,
+    source: "Denver II",
+    note: "Denver II 放物入容器（puts block in cup）；需要鬆手控制"
+  },
+  "5_fine_2": {
+    // 食指指物
+    p10: 10.0, p25: 10.75, p50: 11.5, p75: 12.75, p90: 14.0,
+    source: "ASQ-3",
+    note: "獨立食指指物（isolated index finger pointing）；共同注意力與語言前驅指標"
+  },
+  "5_fine_3": {
+    // 翻厚紙板書
+    p10: 11.0, p25: 11.75, p50: 12.5, p75: 13.75, p90: 15.0,
+    source: "臨床常規",
+    note: "翻厚紙板書；一次翻多頁屬正常，12–18 個月精準度逐步提升"
+  },
+
+  // 里程碑 6：15個月 (13–16m)
+  "6_fine_0": {
+    // 疊高 2 塊積木
+    p10: 11.5, p25: 12.75, p50: 14.0, p75: 16.5, p90: 19.0,
+    source: "Denver II",
+    note: "Denver II 疊 2 塊積木（tower of 2 cubes）；視窗跨度大"
+  },
+  "6_fine_1": {
+    // 自發性塗鴉
+    p10: 11.5, p25: 12.25, p50: 13.0, p75: 14.75, p90: 16.5,
+    source: "Denver II",
+    note: "Denver II 自發性塗鴉（scribbles spontaneously）"
+  },
+  "6_fine_2": {
+    // 倒出小瓶內物品
+    p10: 12.0, p25: 13.0, p50: 14.0, p75: 15.25, p90: 16.5,
+    source: "Denver II",
+    note: "Denver II 示範後倒出小豆子（dumps raisin from bottle, demonstrated）"
+  },
+
+  // 里程碑 7：18個月 (16–19m)
+  "7_fine_0": {
+    // 疊高 4 塊積木
+    p10: 14.0, p25: 15.5, p50: 17.0, p75: 19.5, p90: 22.0,
+    source: "Denver II",
+    note: "Denver II 疊 4 塊積木（tower of 4 cubes）"
+  },
+  "7_fine_1": {
+    // 一次翻 2–3 頁書
+    p10: 15.0, p25: 16.25, p50: 17.5, p75: 19.25, p90: 21.0,
+    source: "臨床指引",
+    note: "一般紙張書本翻頁；單頁翻書要到 21–24 個月才成熟"
+  },
+  "7_fine_2": {
+    // 用湯匙吃飯
+    p10: 14.5, p25: 15.5, p50: 16.5, p75: 18.0, p90: 19.5,
+    source: "Denver II",
+    note: "Denver II 自行使用湯匙（feeds self with spoon）；灑落多屬正常"
+  },
+
+  // 里程碑 8：21個月 (19–22m)
+  "8_fine_0": {
+    // 疊高 6 塊積木
+    p10: 18.0, p25: 19.5, p50: 21.0, p75: 23.0, p90: 25.0,
+    source: "Denver II",
+    note: "Denver II 疊 6 塊積木（tower of 6 cubes）"
+  },
+  "8_fine_1": {
+    // 模仿畫直線
+    p10: 19.0, p25: 21.0, p50: 23.0, p75: 25.25, p90: 27.5,
+    source: "Denver II",
+    note: "Denver II 模仿畫直線（imitates vertical line）"
+  },
+  "8_fine_2": {
+    // 形狀配對（初階）
+    p10: 18.5, p25: 19.75, p50: 21.0, p75: 22.75, p90: 24.5,
+    source: "ASQ-3",
+    note: "初階形狀配對（圓形／方形放入對應孔）；視知覺與動作整合"
+  },
+
+  // 里程碑 9：24個月 (22–25m)
+  "9_fine_0": {
+    // 疊高 8 塊積木
+    p10: 21.5, p25: 22.75, p50: 24.0, p75: 26.0, p90: 28.0,
+    source: "Denver II",
+    note: "Denver II 疊 8 塊積木（tower of 8 cubes）"
+  },
+  "9_fine_1": {
+    // 單頁翻書
+    p10: 21.0, p25: 22.25, p50: 23.5, p75: 25.25, p90: 27.0,
+    source: "臨床常規",
+    note: "精準一次翻一頁紙質書頁；手指獨立控制進階指標"
+  },
+  "9_fine_2": {
+    // 轉開鬆開的瓶蓋
+    p10: 22.0, p25: 23.0, p50: 24.0, p75: 26.0, p90: 28.0,
+    source: "PDMS-2",
+    note: "手腕旋轉（pronation/supination）控制；旋轉螺紋蓋為進階指標"
+  },
+  "9_fine_3": {
+    // 協助穿脫衣物
+    p10: 20.0, p25: 21.5, p50: 23.0, p75: 24.5, p90: 26.0,
+    source: "Denver II",
+    note: "Denver II 自行脫衣物（removes garment）；拉拉鍊、脫襪子"
+  },
 };
 
 // ─────────────────────────────────────────
