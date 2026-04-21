@@ -226,29 +226,6 @@ function renderAccordionContent(stageData) {
         </div>
       </div>
     </div>
-
-    <!-- 皮亞傑階段全覽 -->
-    <div class="piaget-accordion-item mb-6">
-      <button class="piaget-accordion-header">
-        <span>階段全覽</span>
-        <span class="piaget-accordion-toggle collapsed">›</span>
-      </button>
-      <div class="piaget-accordion-content collapsed">
-        <div class="stage-map">
-          ${PIAGET_STAGE_MAP.map((s, i) => {
-            const isCurrentMilestone = i === window.currentMilestoneIndex;
-            return `
-              <div class="stage-map-item ${i < window.currentMilestoneIndex ? 'past' : ''} ${isCurrentMilestone ? 'current' : ''}">
-                <div class="stage-map-dot"></div>
-                <div class="stage-map-age">${s.age}</div>
-                <div class="stage-map-name">${s.name}</div>
-                ${isCurrentMilestone ? '<span class="stage-map-badge">目前階段</span>' : ''}
-              </div>
-            `;
-          }).join('')}
-        </div>
-      </div>
-    </div>
   `;
 }
 
