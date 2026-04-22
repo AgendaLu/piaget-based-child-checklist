@@ -215,13 +215,16 @@
 .todo-item.done-normal .todo-checkbox {
   background: #2E6B3E; border-color: #2E6B3E; color: white;
 }
-.todo-item.done-normal .todo-checkbox::after { content: '✓'; font-size: 12px; }
+.todo-item.done-normal .todo-checkbox::after {
+  content: '✓'; font-size: 14px; font-weight: bold;
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+}
 .todo-item.done-normal .todo-text { text-decoration: line-through; color: #79747E; }
 
 /* Done retro */
 .todo-item.done-retro .todo-checkbox { background: transparent; border-color: #C9938F; }
 .todo-item.done-retro .todo-checkbox::after {
-  content: ''; width: 8px; height: 8px; border-radius: 50%; background: #C9938F;
+  content: '!'; color: white; font-size: 14px; font-weight: bold;
   position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
 }
 .todo-item.done-retro .todo-text { text-decoration: line-through; color: #C9938F; }

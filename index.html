@@ -106,8 +106,9 @@
     .todo-item.done-normal .todo-checkbox::after {
       content: '✓';
       position: absolute;
-      top: -3px;
-      left: 3px;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
       color: white;
       font-weight: bold;
       font-size: 14px;
@@ -120,13 +121,14 @@
     }
 
     .todo-item.done-retro .todo-checkbox::after {
-      content: '⟲';
+      content: '!';
       position: absolute;
-      top: -4px;
-      left: 2px;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
       color: white;
       font-weight: bold;
-      font-size: 13px;
+      font-size: 14px;
     }
 
     .todo-item.done-intermediate .todo-checkbox {
@@ -136,10 +138,11 @@
     }
 
     .todo-item.done-intermediate .todo-checkbox::after {
-      content: '⏱';
+      content: '△';
       position: absolute;
-      top: -3px;
-      left: 3px;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
       color: white;
       font-weight: bold;
       font-size: 13px;
@@ -173,7 +176,8 @@
       gap: 8px;
       font-weight: 600;
       margin-bottom: 12px;
-      font-size: 15px;
+      font-size: 17px;
+      justify-content: flex-start;
     }
 
     .domain-pip {
@@ -851,7 +855,6 @@
       <!-- Piaget trigger -->
       <div class="mt-6 pt-6 border-t border-border">
         <button onclick="openPiagetModal()" class="w-full flex items-center gap-4 p-4 bg-piaget-light rounded-lg hover:bg-piaget/10 transition-colors">
-          <span class="text-2xl">🔬</span>
           <div class="text-left flex-1">
             <div class="text-sm font-semibold text-piaget">延伸探索 — 皮亞傑認知發展</div>
             <div class="text-xs text-ink-soft" id="piaget-trigger-desc">查看本階段對應的認知架構與促進活動</div>
