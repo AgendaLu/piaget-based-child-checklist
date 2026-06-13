@@ -5,57 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>寶寶發展追蹤｜個人化里程碑</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&family=Noto+Sans+TC:wght@300;400;500;600&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="tailwind.css">
   <link rel="stylesheet" href="theme.css">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            'ink': 'oklch(15% 0.05 280)',
-            'ink-soft': 'oklch(45% 0.08 280)',
-            'ink-faint': 'oklch(65% 0.06 280)',
-            'surface': 'oklch(99% 0.001 0)',
-            'bg': 'oklch(95% 0.01 280)',
-            'border': 'oklch(87% 0.02 280)',
-            'domain-gross': 'oklch(65% 0.25 142)',
-            'domain-gross-light': 'oklch(92% 0.06 142)',
-            'domain-fine': 'oklch(55% 0.22 260)',
-            'domain-fine-light': 'oklch(91% 0.05 260)',
-            'domain-language': 'oklch(65% 0.20 85)',
-            'domain-language-light': 'oklch(93% 0.04 85)',
-            'domain-cognitive': 'oklch(60% 0.15 310)',
-            'domain-cognitive-light': 'oklch(92% 0.04 310)',
-            'domain-social': 'oklch(60% 0.20 200)',
-            'domain-social-light': 'oklch(91% 0.05 200)',
-            'retro': 'oklch(70% 0.15 20)',
-            'retro-light': 'oklch(93% 0.03 20)',
-            'piaget': 'oklch(58% 0.15 250)',
-            'piaget-light': 'oklch(92% 0.04 250)',
-          },
-          fontFamily: {
-            'display': ['Noto Serif TC', 'Georgia', 'serif'],
-            'body': ['Noto Sans TC', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
-            'mono': ['DM Mono', 'Menlo', 'monospace'],
-          },
-          keyframes: {
-            fadeUp: {
-              '0%': { opacity: '0', transform: 'translateY(16px)' },
-              '100%': { opacity: '1', transform: 'translateY(0)' },
-            },
-            fadeIn: {
-              '0%': { opacity: '0' },
-              '100%': { opacity: '1' },
-            },
-          },
-          animation: {
-            fadeUp: 'fadeUp 0.4s ease both',
-            fadeIn: 'fadeIn 0.3s ease',
-          },
-        },
-      },
-    }
-  </script>
   <style>
     body {
       font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -451,34 +402,53 @@
       color: oklch(35% 0.08 280);
     }
 
-    /* 響應式設計 - 移動優先 */
-    @media (max-width: 640px) {
-      #piaget-modal {
-        flex-direction: column;
-      }
-
-      #piaget-timeline-mobile {
-        display: flex !important;
-        flex-wrap: wrap;
-      }
-
-      .piaget-timeline-card {
-        flex: 0 1 calc(50% - 4px);
-      }
-
-      #piaget-modal-body {
-        min-height: 0;
-      }
+    /* ── 手機版階段 chip 列 ───────────────────────── */
+    #piaget-stage-chips {
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      scroll-behavior: smooth;
     }
 
-    @media (min-width: 641px) {
-      #piaget-timeline-mobile {
-        display: none !important;
-      }
+    #piaget-stage-chips::-webkit-scrollbar {
+      display: none;
+    }
 
-      #piaget-timeline {
-        display: flex !important;
-      }
+    .piaget-stage-chip {
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid oklch(87% 0.02 280);
+      background: oklch(99% 0.001 0);
+      font-size: 13px;
+      font-weight: 500;
+      color: oklch(45% 0.08 280);
+      white-space: nowrap;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.2s ease;
+    }
+
+    .piaget-stage-chip .chip-age {
+      font-family: 'DM Mono', Menlo, monospace;
+      font-size: 11px;
+      color: oklch(65% 0.06 280);
+    }
+
+    .piaget-stage-chip.active {
+      background: oklch(60% 0.20 200);
+      border-color: oklch(60% 0.20 200);
+      color: white;
+    }
+
+    .piaget-stage-chip.active .chip-age {
+      color: oklch(95% 0.02 200);
+    }
+
+    .piaget-stage-chip.past {
+      border-color: oklch(75% 0.15 142);
     }
 
     @keyframes slideUp {
@@ -684,79 +654,26 @@
       }
     }
 
-    /* 移動端時間軸抽屜 */
-    #piaget-timeline-drawer {
-      box-shadow: 2px 0 8px oklch(0% 0 0 / 0.15);
-    }
-
-    #piaget-timeline-drawer.open {
-      transform: translateX(0);
-    }
-
-    #piaget-timeline-overlay.open {
-      display: block;
-    }
-
-    /* 簡化的時間軸卡片（移動版） */
-    .piaget-timeline-card-mobile {
-      padding: 12px;
-      border-radius: 8px;
-      border-left: 3px solid transparent;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      flex-shrink: 0;
-      min-width: 100%;
-    }
-
-    .piaget-timeline-card-mobile:hover {
-      background: oklch(91% 0.05 280);
-    }
-
-    .piaget-timeline-card-mobile.active {
-      background: oklch(91% 0.08 280);
-      border-left-color: oklch(60% 0.20 200);
-    }
-
-    .piaget-timeline-card-mobile .stage-dot {
-      display: inline-block;
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      margin-right: 8px;
-    }
-
-    .piaget-timeline-card-mobile .stage-dot.past {
-      background: oklch(65% 0.25 142);
-    }
-
-    .piaget-timeline-card-mobile .stage-dot.current {
-      background: oklch(60% 0.20 200);
-    }
-
-    .piaget-timeline-card-mobile .stage-dot.future {
-      background: transparent;
-      border: 2px solid oklch(87% 0.02 280);
-      width: 6px;
-      height: 6px;
-      margin-left: 1px;
-    }
-
     @media (prefers-color-scheme: dark) {
-      #piaget-timeline-drawer {
-        background: oklch(19% 0.02 280);
+      /* 手機版階段 chip 列 */
+      .piaget-stage-chip {
+        background: oklch(22% 0.02 280);
+        border-color: oklch(35% 0.03 280);
+        color: oklch(72% 0.04 280);
       }
 
-      .piaget-timeline-card-mobile:hover {
-        background: oklch(28% 0.02 280);
+      .piaget-stage-chip .chip-age {
+        color: oklch(55% 0.06 280);
       }
 
-      .piaget-timeline-card-mobile.active {
-        background: oklch(28% 0.02 280);
-        border-left-color: oklch(65% 0.18 200);
+      .piaget-stage-chip.active {
+        background: oklch(60% 0.20 200);
+        border-color: oklch(60% 0.20 200);
+        color: white;
       }
 
-      .piaget-timeline-card-mobile .stage-dot.future {
-        border-color: oklch(30% 0.02 280);
+      .piaget-stage-chip.past {
+        border-color: oklch(50% 0.12 142);
       }
 
       /* Concept Chip Dark Mode */
@@ -826,7 +743,7 @@
   </div>
 
   <!-- MAIN CONTENT -->
-  <div class="px-8 py-6 max-w-5xl mx-auto">
+  <div class="px-4 sm:px-8 py-6 max-w-5xl mx-auto">
 
     <!-- Progress strip -->
     <div class="mb-8 fade-in">
@@ -896,16 +813,18 @@
 <div id="piaget-modal" role="dialog" aria-modal="true" aria-label="皮亞傑認知發展理論" class="hidden fixed inset-0 z-50 overflow-y-auto bg-surface flex flex-col">
 
   <!-- Header (Sticky) -->
-  <div class="sticky top-0 bg-surface border-b border-border z-20 px-6 py-4">
-    <div class="flex justify-between items-start">
-      <!-- Mobile hamburger (shown only on mobile) -->
-      <button id="piaget-timeline-toggle" onclick="togglePiagetTimeline()" class="md:hidden text-2xl text-ink-soft hover:text-ink transition-colors mr-3" aria-label="時間軸">☰</button>
-
-      <div class="flex-1">
-        <h1 class="font-display text-2xl font-bold text-ink">皮亞傑認知發展理論</h1>
-        <p class="text-sm text-ink-soft mt-2" id="piaget-modal-stage">感覺動作期 · 第一階段：反射練習期 (0–1 個月)</p>
+  <div class="sticky top-0 bg-surface border-b border-border z-20">
+    <div class="flex justify-between items-start px-4 sm:px-6 py-4">
+      <div class="flex-1 min-w-0">
+        <h1 class="font-display text-xl sm:text-2xl font-bold text-ink">皮亞傑認知發展理論</h1>
+        <p class="text-sm text-ink-soft mt-1 sm:mt-2" id="piaget-modal-stage">感覺動作期 · 第一階段：反射練習期 (0–1 個月)</p>
       </div>
-      <button onclick="closePiagetModal()" class="text-2xl text-ink-soft hover:text-ink transition-colors ml-4" aria-label="關閉">✕</button>
+      <button onclick="closePiagetModal()" class="flex items-center justify-center w-11 h-11 -mr-2 -mt-1 text-2xl text-ink-soft hover:text-ink transition-colors" aria-label="關閉">✕</button>
+    </div>
+
+    <!-- Mobile stage chips (horizontal scroll, hidden on desktop) -->
+    <div id="piaget-stage-chips" class="md:hidden flex gap-2 overflow-x-auto px-4 pb-3 -mt-1" role="tablist" aria-label="發展階段">
+      <!-- Chips generated by JS -->
     </div>
   </div>
 
@@ -916,18 +835,16 @@
       <!-- Timeline cards generated by JS -->
     </aside>
 
-    <!-- Timeline Drawer (Mobile version - Hidden on desktop) -->
-    <div id="piaget-timeline-drawer" class="md:hidden fixed inset-y-0 left-0 w-64 bg-surface border-r border-border z-40 transform -translate-x-full transition-transform duration-300 overflow-y-auto flex flex-col p-4 gap-2" style="top: var(--header-height, 80px)">
-      <!-- Mobile timeline cards generated by JS -->
-    </div>
-
-    <!-- Mobile drawer overlay (backdrop) -->
-    <div id="piaget-timeline-overlay" class="md:hidden hidden fixed inset-0 bg-black/30 z-30" onclick="togglePiagetTimeline()" style="top: var(--header-height, 80px)"></div>
-
     <!-- Main Content Area -->
-    <div id="piaget-modal-body" class="flex-1 overflow-y-auto p-6">
+    <div id="piaget-modal-body" class="flex-1 overflow-y-auto p-4 sm:p-6">
       <!-- Accordion content generated by JS -->
     </div>
+  </div>
+
+  <!-- Mobile prev/next stage nav (sticky bottom) -->
+  <div id="piaget-stage-nav" class="md:hidden sticky bottom-0 bg-surface border-t border-border px-4 py-3 flex gap-3">
+    <button id="piaget-prev-btn" class="flex-1 py-2.5 text-sm font-medium rounded-lg border border-border text-ink hover:bg-bg disabled:opacity-40 disabled:cursor-not-allowed transition-colors">← 上一階段</button>
+    <button id="piaget-next-btn" class="flex-1 py-2.5 text-sm font-medium rounded-lg border border-border text-ink hover:bg-bg disabled:opacity-40 disabled:cursor-not-allowed transition-colors">下一階段 →</button>
   </div>
 
 </div>

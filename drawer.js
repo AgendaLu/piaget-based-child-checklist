@@ -1,11 +1,14 @@
 // ─────────────────────────────────────────
 // js/drawer.js
 // 皮亞傑認知發展全屏模態：開關、時間軸、手風琴
+// 桌面版：左側時間軸側欄
+// 手機版：頂部水平 chip 列 + 底部上一/下一階段按鈕
 // ─────────────────────────────────────────
 import { PIAGET_DATA, PIAGET_KEY_MAP, PIAGET_STAGE_MAP } from './piaget.js';
 
-// 追蹤當前打開的手風琴段落（允許多個展開）
+// 追蹤當前打開的手風琴段落（以標題為 key，跨階段切換保留）
 let openAccordions = new Set();
+let currentStageKey = null;
 
 // ─────────────────────────────────────────
 // 打開模態（由 app.js 透過 window 代理呼叫）
@@ -13,28 +16,18 @@ let openAccordions = new Set();
 export function openPiagetModal() {
   const idx = window.currentMilestoneIndex;
   const stageKey = PIAGET_KEY_MAP[idx];
-  const stageData = PIAGET_DATA[stageKey];
 
-  // 更新模態標題
-  document.getElementById('piaget-modal-stage').textContent =
-    `${stageData.piagetStage} · ${stageData.piagetSub} (${stageData.piagetAge})`;
-
-  // 渲染時間軸卡片和內容
-  renderTimelineCards(stageKey);
-  renderTimelineCardsMobile(stageKey);
-  renderAccordionContent(stageData);
-
-  // 設置手風琴事件
-  setupAccordionToggle();
+  // 重置手風琴狀態並預設展開「理論闡述」
+  openAccordions = new Set(['理論闡述']);
+  renderStage(stageKey);
 
   // 顯示模態
   document.getElementById('piaget-modal-overlay').classList.remove('hidden');
   document.getElementById('piaget-modal').classList.remove('hidden');
   document.body.style.overflow = 'hidden';
 
-  // 重置手風琴狀態並預設展開「理論闡述」
-  openAccordions.clear();
-  expandTheoryAccordion();
+  // 焦點移入模態，方便鍵盤與讀屏操作
+  document.getElementById('piaget-modal').focus?.();
 }
 
 // ─────────────────────────────────────────
@@ -47,35 +40,28 @@ export function closePiagetModal() {
 }
 
 // ─────────────────────────────────────────
-// 切換移動版時間軸抽屜
+// 渲染指定階段（標題、時間軸、chips、內容、底部導覽）
 // ─────────────────────────────────────────
-export function togglePiagetTimeline() {
-  const drawer = document.getElementById('piaget-timeline-drawer');
-  const overlay = document.getElementById('piaget-timeline-overlay');
+function renderStage(stageKey) {
+  const stageData = PIAGET_DATA[stageKey];
+  if (!stageData) return;
 
-  if (drawer && overlay) {
-    drawer.classList.toggle('open');
-    overlay.classList.toggle('open');
-  }
-}
+  currentStageKey = stageKey;
 
-// ─────────────────────────────────────────
-// 關閉移動版時間軸抽屜
-// ─────────────────────────────────────────
-function closePiagetTimeline() {
-  const drawer = document.getElementById('piaget-timeline-drawer');
-  const overlay = document.getElementById('piaget-timeline-overlay');
+  document.getElementById('piaget-modal-stage').textContent =
+    `${stageData.piagetStage} · ${stageData.piagetSub} (${stageData.piagetAge})`;
 
-  if (drawer && overlay) {
-    drawer.classList.remove('open');
-    overlay.classList.remove('open');
-  }
+  renderTimelineCards(stageKey);
+  renderStageChips(stageKey);
+  renderAccordionContent(stageData);
+  setupAccordionToggle();
+  updateStageNavButtons(stageKey);
 }
 
 // ─────────────────────────────────────────
 // 渲染時間軸卡片（桌面版，左側邊欄）
 // ─────────────────────────────────────────
-function renderTimelineCards(currentStageKey) {
+function renderTimelineCards(currentKey) {
   const container = document.getElementById('piaget-timeline');
   if (!container) return;
 
@@ -84,7 +70,7 @@ function renderTimelineCards(currentStageKey) {
   PIAGET_STAGE_MAP.forEach((stage, idx) => {
     const stageKey = PIAGET_KEY_MAP[idx];
     const isPast = idx < window.currentMilestoneIndex;
-    const isCurrent = stageKey === currentStageKey;
+    const isCurrent = stageKey === currentKey;
 
     const card = document.createElement('div');
     card.className = `piaget-timeline-card ${isCurrent ? 'active' : ''}`;
@@ -98,19 +84,16 @@ function renderTimelineCards(currentStageKey) {
       </div>
     `;
 
-    card.addEventListener('click', () => {
-      handleTimelineCardClick(stageKey);
-    });
-
+    card.addEventListener('click', () => switchStage(stageKey));
     container.appendChild(card);
   });
 }
 
 // ─────────────────────────────────────────
-// 渲染時間軸卡片（移動版，抽屜式垂直時間軸）
+// 渲染階段 chips（手機版，頂部水平可滑動）
 // ─────────────────────────────────────────
-function renderTimelineCardsMobile(currentStageKey) {
-  const container = document.getElementById('piaget-timeline-drawer');
+function renderStageChips(currentKey) {
+  const container = document.getElementById('piaget-stage-chips');
   if (!container) return;
 
   container.innerHTML = '';
@@ -118,27 +101,54 @@ function renderTimelineCardsMobile(currentStageKey) {
   PIAGET_STAGE_MAP.forEach((stage, idx) => {
     const stageKey = PIAGET_KEY_MAP[idx];
     const isPast = idx < window.currentMilestoneIndex;
-    const isCurrent = stageKey === currentStageKey;
+    const isCurrent = stageKey === currentKey;
 
-    const card = document.createElement('button');
-    card.className = `piaget-timeline-card-mobile ${isCurrent ? 'active' : ''}`;
-    card.innerHTML = `
-      <div class="flex items-center gap-2">
-        <span class="stage-dot ${isPast ? 'past' : isCurrent ? 'current' : 'future'}"></span>
-        <div class="flex-1 min-w-0 text-left">
-          <div class="text-sm font-semibold text-ink truncate">${stage.name}</div>
-          <div class="text-xs text-ink-soft">${stage.age}</div>
-        </div>
-      </div>
-    `;
+    const chip = document.createElement('button');
+    chip.className = `piaget-stage-chip ${isCurrent ? 'active' : isPast ? 'past' : ''}`;
+    chip.setAttribute('role', 'tab');
+    chip.setAttribute('aria-selected', isCurrent ? 'true' : 'false');
+    // chip 標籤取階段名最後一段（如「反射練習」），避免過長
+    const shortName = stage.name.split('—').pop().trim();
+    chip.innerHTML = `<span>${shortName}</span><span class="chip-age">${stage.age}</span>`;
 
-    card.addEventListener('click', () => {
-      handleTimelineCardClick(stageKey);
-      // 選擇後自動關閉抽屜
-      closePiagetTimeline();
-    });
+    chip.addEventListener('click', () => switchStage(stageKey));
+    container.appendChild(chip);
 
-    container.appendChild(card);
+    // 當前階段 chip 捲動置中
+    if (isCurrent) {
+      requestAnimationFrame(() => {
+        chip.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'instant' in chip ? 'instant' : 'auto' });
+      });
+    }
+  });
+}
+
+// ─────────────────────────────────────────
+// 底部上一/下一階段按鈕（手機版）
+// ─────────────────────────────────────────
+function updateStageNavButtons(currentKey) {
+  const prevBtn = document.getElementById('piaget-prev-btn');
+  const nextBtn = document.getElementById('piaget-next-btn');
+  if (!prevBtn || !nextBtn) return;
+
+  const idx = PIAGET_KEY_MAP.indexOf(currentKey);
+  prevBtn.disabled = idx <= 0;
+  nextBtn.disabled = idx >= PIAGET_KEY_MAP.length - 1;
+}
+
+function setupStageNavButtons() {
+  const prevBtn = document.getElementById('piaget-prev-btn');
+  const nextBtn = document.getElementById('piaget-next-btn');
+  if (!prevBtn || !nextBtn) return;
+
+  prevBtn.addEventListener('click', () => {
+    const idx = PIAGET_KEY_MAP.indexOf(currentStageKey);
+    if (idx > 0) switchStage(PIAGET_KEY_MAP[idx - 1]);
+  });
+
+  nextBtn.addEventListener('click', () => {
+    const idx = PIAGET_KEY_MAP.indexOf(currentStageKey);
+    if (idx < PIAGET_KEY_MAP.length - 1) switchStage(PIAGET_KEY_MAP[idx + 1]);
   });
 }
 
@@ -229,84 +239,45 @@ function renderAccordionContent(stageData) {
 }
 
 // ─────────────────────────────────────────
-// 設置手風琴展開/收起事件
+// 設置手風琴展開/收起事件，並還原先前的展開狀態
 // ─────────────────────────────────────────
 function setupAccordionToggle() {
   const headers = document.querySelectorAll('.piaget-accordion-header');
 
   headers.forEach(header => {
+    const item = header.closest('.piaget-accordion-item');
+    const content = item.querySelector('.piaget-accordion-content');
+    const toggle = header.querySelector('.piaget-accordion-toggle');
+    const itemId = header.textContent.replace('›', '').trim();
+
+    const applyState = (open) => {
+      content.classList.toggle('collapsed', !open);
+      toggle.classList.toggle('collapsed', !open);
+      header.setAttribute('aria-expanded', open ? 'true' : 'false');
+    };
+
+    // 還原展開狀態（跨階段切換保留，方便比較不同階段同一段落）
+    applyState(openAccordions.has(itemId));
+
     header.addEventListener('click', () => {
-      const item = header.closest('.piaget-accordion-item');
-      const content = item.querySelector('.piaget-accordion-content');
-      const toggle = header.querySelector('.piaget-accordion-toggle');
-      const itemId = item.id || header.textContent.trim();
-
-      // 切換狀態
       const isOpen = openAccordions.has(itemId);
-
-      if (isOpen) {
-        // 收起
-        openAccordions.delete(itemId);
-        content.classList.add('collapsed');
-        toggle.classList.add('collapsed');
-      } else {
-        // 展開
-        openAccordions.add(itemId);
-        content.classList.remove('collapsed');
-        toggle.classList.remove('collapsed');
-      }
+      if (isOpen) openAccordions.delete(itemId);
+      else openAccordions.add(itemId);
+      applyState(!isOpen);
     });
   });
 }
 
 // ─────────────────────────────────────────
-// 預設展開「理論闡述」手風琴
+// 切換階段（時間軸卡片 / chips / 上下階段按鈕共用）
 // ─────────────────────────────────────────
-function expandTheoryAccordion() {
-  const headers = document.querySelectorAll('.piaget-accordion-header');
+function switchStage(stageKey) {
+  if (stageKey === currentStageKey) return;
+  renderStage(stageKey);
 
-  // 找到第一個header（理論闡述）
-  if (headers.length > 0) {
-    const firstHeader = headers[0];
-    const item = firstHeader.closest('.piaget-accordion-item');
-    const content = item.querySelector('.piaget-accordion-content');
-    const toggle = firstHeader.querySelector('.piaget-accordion-toggle');
-    const itemId = item.id || firstHeader.textContent.trim();
-
-    // 展開第一個accordion
-    openAccordions.add(itemId);
-    content.classList.remove('collapsed');
-    toggle.classList.remove('collapsed');
-  }
-}
-
-// ─────────────────────────────────────────
-// 時間軸卡片點擊事件
-// ─────────────────────────────────────────
-function handleTimelineCardClick(stageKey) {
-  console.log('handleTimelineCardClick called with stageKey:', stageKey);
-  const stageData = PIAGET_DATA[stageKey];
-  console.log('stageData:', stageData?.piagetStage);
-
-  if (!stageData) {
-    console.warn('No stage data found for key:', stageKey);
-    return;
-  }
-
-  // 重新渲染內容和時間軸卡片高亮
-  renderTimelineCards(stageKey);
-  renderTimelineCardsMobile(stageKey);
-  renderAccordionContent(stageData);
-
-  // 更新模態標題
-  document.getElementById('piaget-modal-stage').textContent =
-    `${stageData.piagetStage} · ${stageData.piagetSub} (${stageData.piagetAge})`;
-
-  // 重新設置手風琴事件，並預設展開「理論闡述」
-  openAccordions.clear();
-  setupAccordionToggle();
-  expandTheoryAccordion();
-  console.log('Stage switched to:', stageKey);
+  // 內容捲回頂部，避免停留在上一階段的位置
+  const body = document.getElementById('piaget-modal-body');
+  if (body) body.scrollTop = 0;
 }
 
 // ─────────────────────────────────────────
@@ -321,9 +292,11 @@ document.addEventListener('keydown', e => {
   }
 });
 
+// 上一/下一階段按鈕只需綁定一次
+setupStageNavButtons();
+
 // ─────────────────────────────────────────
 // 掛載到 window（相容 HTML inline handlers）
 // ─────────────────────────────────────────
 window.openPiagetModal = openPiagetModal;
 window.closePiagetModal = closePiagetModal;
-window.togglePiagetTimeline = togglePiagetTimeline;
