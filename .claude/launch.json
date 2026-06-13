@@ -4,8 +4,9 @@
     {
       "name": "Simple HTTP Server",
       "runtimeExecutable": "npx",
-      "runtimeArgs": ["serve", "-p", "8000", "."],
-      "port": 8000
+      "runtimeArgs": ["serve", "."],
+      "port": 8000,
+      "autoPort": true
     }
   ]
 }

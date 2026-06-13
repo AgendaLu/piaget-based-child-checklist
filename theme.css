@@ -4,8 +4,7 @@
    animations, timeline, todo items, drawer
    ───────────────────────────────────────── */
 
-/* ─── Reset ─── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* Reset 由 tailwind.css 的 preflight 提供（box-sizing/margin/padding 歸零） */
 
 /* ─── Scrollbar ─── */
 .scrollbar-none::-webkit-scrollbar { display: none; }

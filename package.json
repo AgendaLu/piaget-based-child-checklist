@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "main": "app.js",
   "scripts": {
-    "build": "postcss src/css/main.css -o dist/main.css",
-    "watch": "postcss src/css/main.css -o dist/main.css --watch",
+    "build": "postcss src/css/main.css -o tailwind.css",
+    "watch": "postcss src/css/main.css -o tailwind.css --watch",
     "dev": "npm run watch"
   },
   "keywords": [],
