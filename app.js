@@ -26,7 +26,8 @@ let d3Timeline = null;  // D3Timeline 實例
 export function calcAge(birthDate) {
   const now        = new Date();
   const birth      = new Date(birthDate);
-  const totalDays  = Math.floor((now - birth) / 86400000);
+  // 出生日期若為未來（例如預產期或誤填），clamp 到 0，避免出現負數月齡
+  const totalDays  = Math.max(0, Math.floor((now - birth) / 86400000));
   const months     = Math.floor(totalDays / 30.44);
   const remainDays = totalDays - Math.floor(months * 30.44);
   const weeks      = Math.floor(remainDays / 7);
@@ -34,31 +35,63 @@ export function calcAge(birthDate) {
 }
 
 export function getMilestoneIndex(months) {
+  // 低於第一個里程碑（含未來/負數月齡）→ 對應新生兒期；高於範圍 → 對應最後階段
+  if (months < MILESTONES[0].monthStart) return 0;
   for (let i = 0; i < MILESTONES.length; i++) {
     if (months >= MILESTONES[i].monthStart && months < MILESTONES[i].monthEnd) return i;
   }
   return MILESTONES.length - 1;
 }
 
-// 判斷打勾日期是否超過該里程碑的預期時間範圍
-export function isCheckOutOfRange(birthDate, milestoneIdx, checkDate) {
-  const birth = new Date(birthDate);
-  const check = new Date(checkDate);
-  const milestone = MILESTONES[milestoneIdx];
+// ─────────────────────────────────────────
+// 達成時程判定（統一三態：ahead / ontime / delayed）
+// 規則：以「勾選/達成當天的月齡」為準，全程用 30.44 天/月（與 calcAge 同源）
+//   有百分位資料的項目（gross/fine）→ 依該項 p10/p90 曲線
+//   無百分位的項目（language/cognitive/social）→ 退回里程碑視窗 [monthStart, monthEnd)
+//   最後一個里程碑不示警（追蹤完成）
+// ─────────────────────────────────────────
+export function judgeAchievement(birthDate, checkDate, idx, domainKey, itemIdx) {
+  const days   = Math.max(0, (new Date(checkDate) - new Date(birthDate)) / 86400000);
+  const aExact = days / 30.44;          // 小數月
+  const aWhole = Math.floor(aExact);    // 整數月
 
-  // 計算寶寶在check date時的月齡
-  const ageAtCheck = calcAge(birthDate);
-  const checkAtTime = new Date(check);
+  const ms     = MILESTONES[idx];
+  const isLast = idx === MILESTONES.length - 1;
+  const pdata  = PERCENTILE_DATA[`${idx}_${domainKey}_${itemIdx}`];
 
-  // 如果打勾時間是在未來，不計算
-  if (checkAtTime > new Date()) return false;
+  let state;
+  if (pdata) {
+    if (aExact < pdata.p10)      state = 'ahead';
+    else if (aExact > pdata.p90) state = 'delayed';
+    else                         state = 'ontime';
+  } else {
+    if (aWhole < ms.monthStart)      state = 'ahead';
+    else if (aWhole >= ms.monthEnd)  state = 'delayed';
+    else                             state = 'ontime';
+  }
+  if (isLast && state === 'delayed') state = 'ontime';
+  return state;
+}
 
-  // 計算該里程碑的結束時間（以當時出生日期 + monthEnd個月）
-  const milestoneEndDate = new Date(birth);
-  milestoneEndDate.setMonth(milestoneEndDate.getMonth() + milestone.monthEnd);
+// 將舊狀態（normal/retro/intermediate）與新狀態正規化為 false|ahead|ontime|delayed
+const OLD_STATE_MAP = { normal: 'ontime', retro: 'ontime', intermediate: 'delayed' };
+export function normState(itemData) {
+  if (!itemData) return false;
+  const s = typeof itemData === 'object' ? itemData.state : itemData;
+  return OLD_STATE_MAP[s] || s;
+}
 
-  // 如果打勾時間超過里程碑結束時間，表示是延遲的
-  return checkAtTime > milestoneEndDate;
+// Lucide 圖示（inline SVG，stroke=currentColor）
+export const STATE_ICON = {
+  ahead:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg>',
+  ontime:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
+  delayed: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg>',
+};
+export function stateClass(state) {
+  return state === 'ahead'   ? 'done-ahead'
+       : state === 'ontime'  ? 'done-ontime'
+       : state === 'delayed' ? 'done-delayed'
+       : '';
 }
 
 // ─────────────────────────────────────────
@@ -136,6 +169,8 @@ export function initApp() {
 // Timeline - D3 實現
 // ─────────────────────────────────────────
 function renderTimeline(currentIdx) {
+  // 容器在行動版改版後可能不存在；缺少時直接略過，避免 D3 對 null 操作而拋錯
+  if (!document.getElementById('d3-timeline-container')) return;
   // 初始化或更新 D3 時間軸
   if (!d3Timeline) {
     d3Timeline = new D3Timeline('d3-timeline-container', MILESTONES, currentIdx, {
@@ -328,14 +363,15 @@ export function renderTodoCard(idx, age, type) {
     subtitleEl.textContent =
       `根據寶寶目前 ${age.months} 個月 ${age.weeks} 週的月齡，以下是各領域的觀察重點與促進任務。`;
   } else if (type === 'past') {
-    subtitleEl.textContent = '此為已完成的階段。可補填當時觀察到但未記錄的項目。';
+    subtitleEl.textContent = '此為已完成的階段。補填超過計畫時程的項目會標記為延遲。';
   } else {
-    subtitleEl.textContent = '預覽模式 — 此階段任務尚未開始觀察，項目不可勾選。';
+    subtitleEl.textContent = '尚未進入此階段。若寶寶已提早做到，可點「提早達成」記錄為超前。';
   }
 
   // 勾選資料
   const checkKey = `checks_${idx}`;
   const saved    = JSON.parse(localStorage.getItem(checkKey) || '{}');
+  const dob      = localStorage.getItem('baby_dob');
 
   // 領域列表
   const container = document.getElementById('todo-domains');
@@ -352,65 +388,41 @@ export function renderTodoCard(idx, age, type) {
       </div>`;
 
     items.forEach((text, i) => {
-      const itemKey   = `${key}_${i}`;
-      const itemData = saved[itemKey] || false;
-      // 相容舊的字串格式和新的物件格式
-      const itemState = itemData === false ? false : (typeof itemData === 'object' ? itemData.state : itemData);
+      const itemKey = `${key}_${i}`;
+      const state   = normState(saved[itemKey]);   // false | ahead | ontime | delayed
 
       const item = document.createElement('div');
+      const cbHTML = `<div class="todo-checkbox">${state ? STATE_ICON[state] : ''}</div>`;
 
-      if (type === 'future') {
-        // 未來：顯示但鎖定
+      // 切換勾選（達成日期＝今天，狀態由 judgeAchievement 自動判定）
+      const toggle = () => {
+        const cur = JSON.parse(localStorage.getItem(checkKey) || '{}');
+        const today = new Date().toISOString().split('T')[0];
+        if (normState(cur[itemKey])) {
+          cur[itemKey] = false;
+        } else {
+          cur[itemKey] = { state: judgeAchievement(dob, today, idx, key, i), date: today };
+        }
+        localStorage.setItem(checkKey, JSON.stringify(cur));
+        renderTodoCard(idx, age, type);
+        renderTimeline(currentMilestoneIndex);
+      };
+
+      if (type === 'future' && !state) {
+        // 未來且未記錄：鎖定，但提供「提早達成」入口
         item.className = 'todo-item locked';
-        item.innerHTML = `<div class="todo-checkbox"></div><div class="todo-text">${text}</div>`;
-      } else {
-        // current 或 past
-        let itemClass = 'todo-item';
-        if (itemState === 'normal') itemClass += ' done-normal';
-        if (itemState === 'retro')  itemClass += ' done-retro';
-        if (itemState === 'intermediate') itemClass += ' done-intermediate';
-        item.className = itemClass;
-        item.innerHTML = `<div class="todo-checkbox"></div><div class="todo-text">${text}</div>`;
-
-        item.addEventListener('click', () => {
-          const cur = JSON.parse(localStorage.getItem(checkKey) || '{}');
-          const itemData = cur[itemKey] || false;
-          const currentState = itemData === false ? false : (typeof itemData === 'object' ? itemData.state : itemData);
-          const today = new Date().toISOString().split('T')[0];
-
-          // 判斷下一個狀態
-          let next;
-          if (type === 'current') {
-            // current 階段：false ↔ normal
-            next = currentState === 'normal' ? false : { state: 'normal', date: today };
-          } else {
-            // past 階段：false → retro → intermediate/normal → false
-            if (currentState === false) {
-              next = { state: 'retro', date: today };
-            } else if (currentState === 'retro') {
-              // 從 retro 轉換，需檢查是否應該變成 intermediate
-              const isOutOfRange = isCheckOutOfRange(localStorage.getItem('baby_dob'), idx, today);
-              next = { state: isOutOfRange ? 'intermediate' : 'normal', date: today };
-            } else {
-              // 其他狀態 → false（取消勾選）
-              next = false;
-            }
-          }
-
-          cur[itemKey] = next;
-          localStorage.setItem(checkKey, JSON.stringify(cur));
-
-          // 更新 class
-          item.classList.remove('done-normal', 'done-retro', 'done-intermediate');
-          if (typeof next === 'object') {
-            if (next.state === 'normal') item.classList.add('done-normal');
-            else if (next.state === 'retro') item.classList.add('done-retro');
-            else if (next.state === 'intermediate') item.classList.add('done-intermediate');
-          }
-
-          // 更新時間軸節點的 state
-          renderTimeline(currentMilestoneIndex);
+        item.innerHTML = `${cbHTML}<div class="todo-text">${text}</div>` +
+          `<button class="early-btn" type="button">${STATE_ICON.ahead}提早達成</button>`;
+        item.querySelector('.early-btn').addEventListener('click', (e) => {
+          e.stopPropagation();
+          toggle();
         });
+      } else {
+        // current / past，或未來已記錄（可再點取消）
+        const cls = stateClass(state);
+        item.className = 'todo-item' + (cls ? ' ' + cls : '');
+        item.innerHTML = `${cbHTML}<div class="todo-text">${text}</div>`;
+        item.addEventListener('click', toggle);
       }
 
       section.appendChild(item);
@@ -438,29 +450,19 @@ export function renderTodoCard(idx, age, type) {
   if (existingFutureNote) existingFutureNote.remove();
 
   if (type === 'past') {
-    const allItems    = Object.values(milestone.domains).flat();
-    const total       = allItems.length;
+    const total = Object.values(milestone.domains).flat().length;
 
-    // 相容舊格式和新格式
-    const normalCount = Object.values(saved).filter(v => {
-      const state = typeof v === 'object' ? v.state : v;
-      return state === 'normal';
-    }).length;
-    const retroCount = Object.values(saved).filter(v => {
-      const state = typeof v === 'object' ? v.state : v;
-      return state === 'retro';
-    }).length;
-    const intermediateCount = Object.values(saved).filter(v => {
-      const state = typeof v === 'object' ? v.state : v;
-      return state === 'intermediate';
-    }).length;
+    const states = Object.values(saved).map(normState);
+    const aheadCount   = states.filter(s => s === 'ahead').length;
+    const ontimeCount  = states.filter(s => s === 'ontime').length;
+    const delayedCount = states.filter(s => s === 'delayed').length;
 
-    const doneCount   = normalCount + retroCount + intermediateCount;
-    const pct         = total > 0 ? Math.round((doneCount / total) * 100) : 0;
-    const hasIntermediate = intermediateCount > 0;
-    const hasRetro    = retroCount > 0;
-    const fillClass   = hasIntermediate ? 'fill-intermediate' : (hasRetro ? 'fill-retro' : 'fill-normal');
-    const pctClass    = hasIntermediate ? 'has-intermediate' : (hasRetro ? 'has-retro' : 'all-normal');
+    const doneCount = aheadCount + ontimeCount + delayedCount;
+    const pct       = total > 0 ? Math.round((doneCount / total) * 100) : 0;
+    const hasDelayed = delayedCount > 0;
+    const hasAhead   = aheadCount > 0;
+    const fillClass  = hasDelayed ? 'fill-delayed' : 'fill-normal';
+    const pctClass   = hasDelayed ? 'has-delayed' : 'all-normal';
 
     const achvBar = document.createElement('div');
     achvBar.className = 'achievement-bar';
@@ -473,14 +475,13 @@ export function renderTodoCard(idx, age, type) {
     `;
     container.after(achvBar);
 
-    if (hasRetro || hasIntermediate) {
+    if (hasDelayed || hasAhead) {
       const note = document.createElement('div');
       note.className = 'retro-note';
-      let text = '';
-      if (retroCount > 0) text += `${retroCount} 項事後補填`;
-      if (retroCount > 0 && intermediateCount > 0) text += '、';
-      if (intermediateCount > 0) text += `${intermediateCount} 項延遲記錄`;
-      note.textContent = `其中 ${text}`;
+      const parts = [];
+      if (aheadCount > 0)   parts.push(`${aheadCount} 項超前`);
+      if (delayedCount > 0) parts.push(`${delayedCount} 項延遲`);
+      note.textContent = `其中 ${parts.join('、')}`;
       achvBar.after(note);
     }
   }
@@ -488,7 +489,7 @@ export function renderTodoCard(idx, age, type) {
   if (type === 'future') {
     const note = document.createElement('div');
     note.className = 'future-note';
-    note.textContent = '到達此月齡後，任務將自動開放記錄';
+    note.textContent = '尚未進入此階段。若寶寶已提早做到，點各項的「提早達成」記錄為超前。';
     container.after(note);
   }
 

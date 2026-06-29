@@ -19,20 +19,20 @@ export class D3Timeline {
     this.render();
   }
 
-  // 检查里程碑的完成状态
+  // 检查里程碑的完成状态（與清單同一套詞彙：超前 / 正常 / 延遲）
   getCompletionState(idx) {
+    const OLD = { normal: 'ontime', retro: 'ontime', intermediate: 'delayed' };
     const saved = JSON.parse(localStorage.getItem(`checks_${idx}`) || '{}');
-    const allStates = Object.values(saved).map(v => typeof v === 'object' ? v.state : v);
-    const hasNormal = allStates.some(s => s === 'normal');
-    const hasRetro = allStates.some(s => s === 'retro');
-    const hasIntermediate = allStates.some(s => s === 'intermediate');
+    const states = Object.values(saved)
+      .map(v => (typeof v === 'object' ? v.state : v))
+      .map(s => OLD[s] || s);
 
-    if (hasIntermediate) {
-      return { state: 'intermediate', icon: '⏱', color: 'oklch(65% 0.20 200)' };
-    } else if (hasRetro) {
-      return { state: 'retro', icon: '⟲', color: 'oklch(70% 0.15 20)' };
-    } else if (hasNormal) {
-      return { state: 'normal', icon: '✓', color: 'oklch(65% 0.25 142)' };
+    if (states.some(s => s === 'delayed')) {
+      return { state: 'delayed', icon: '⏱', color: 'oklch(64% 0.15 62)' };
+    } else if (states.some(s => s === 'ahead')) {
+      return { state: 'ahead', icon: '↑', color: 'oklch(58% 0.16 250)' };
+    } else if (states.some(s => s === 'ontime')) {
+      return { state: 'ontime', icon: '✓', color: 'oklch(65% 0.25 142)' };
     }
     return { state: 'none', icon: '', color: '' };
   }
