@@ -52,55 +52,33 @@
       border-color: oklch(60% 0.15 280);
     }
 
-    .todo-item.done-normal .todo-checkbox {
+    .todo-checkbox svg {
+      width: 13px;
+      height: 13px;
+      display: block;
+      color: white;
+    }
+
+    .todo-item.done-ontime .todo-checkbox {
       background: oklch(65% 0.25 142);
       border-color: oklch(65% 0.25 142);
-      position: relative;
     }
 
-    .todo-item.done-normal .todo-checkbox::after {
-      content: '✓';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      color: white;
-      font-weight: bold;
-      font-size: 14px;
+    .todo-item.done-ahead .todo-checkbox {
+      background: oklch(58% 0.16 250);
+      border-color: oklch(58% 0.16 250);
     }
 
-    .todo-item.done-retro .todo-checkbox {
-      background: oklch(70% 0.15 20);
-      border-color: oklch(70% 0.15 20);
-      position: relative;
+    .todo-item.done-delayed .todo-checkbox {
+      background: oklch(64% 0.15 62);
+      border-color: oklch(64% 0.15 62);
     }
 
-    .todo-item.done-retro .todo-checkbox::after {
-      content: '!';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      color: white;
-      font-weight: bold;
-      font-size: 14px;
-    }
-
-    .todo-item.done-intermediate .todo-checkbox {
-      background: oklch(65% 0.20 200);
-      border-color: oklch(65% 0.20 200);
-      position: relative;
-    }
-
-    .todo-item.done-intermediate .todo-checkbox::after {
-      content: '△';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      color: white;
-      font-weight: bold;
-      font-size: 13px;
+    .todo-item.done-ontime .todo-text,
+    .todo-item.done-ahead .todo-text,
+    .todo-item.done-delayed .todo-text {
+      text-decoration: line-through;
+      color: oklch(55% 0.02 280);
     }
 
     .todo-item.locked .todo-checkbox {
@@ -109,10 +87,32 @@
       cursor: not-allowed;
     }
 
-    .todo-item.locked {
+    /* 鎖定列：只淡化方框與文字，保留「提早達成」鈕可讀可點 */
+    .todo-item.locked .todo-checkbox,
+    .todo-item.locked .todo-text {
       opacity: 0.5;
-      cursor: not-allowed;
     }
+    .todo-item.locked { cursor: default; }
+
+    .early-btn {
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 1px;
+      padding: 4px 10px;
+      font-size: 12px;
+      line-height: 1;
+      white-space: nowrap;
+      color: oklch(48% 0.16 250);
+      background: transparent;
+      border: 1px solid oklch(80% 0.08 250);
+      border-radius: 999px;
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+    .early-btn:hover { background: oklch(95% 0.03 250); }
+    .early-btn svg { width: 12px; height: 12px; color: currentColor; }
 
     .todo-text {
       flex: 1;
@@ -142,12 +142,12 @@
     }
 
     /* Achievement bar colors */
-    .achievement-fill.fill-intermediate {
-      background: oklch(65% 0.20 200);
+    .achievement-fill.fill-delayed {
+      background: oklch(64% 0.15 62);
     }
 
-    .achievement-pct.has-intermediate {
-      color: oklch(65% 0.20 200);
+    .achievement-pct.has-delayed {
+      color: oklch(64% 0.15 62);
     }
 
     /* ── 百分位條 ───────────────────────────── */
@@ -603,6 +603,16 @@
         background: oklch(28% 0.02 280);
         border-color: oklch(28% 0.02 280);
       }
+      .todo-item.done-ontime .todo-text,
+      .todo-item.done-ahead .todo-text,
+      .todo-item.done-delayed .todo-text {
+        color: oklch(60% 0.03 280);
+      }
+      .early-btn {
+        color: oklch(74% 0.12 250);
+        border-color: oklch(42% 0.07 250);
+      }
+      .early-btn:hover { background: oklch(28% 0.05 250); }
 
       /* ── Percentile bars ── */
       .pct-rail       { background: oklch(30% 0.02 280); }
