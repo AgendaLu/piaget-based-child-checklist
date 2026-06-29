@@ -520,9 +520,10 @@ function renderUpcoming(currentIdx) {
     return;
   }
 
-  nextOnes.forEach(m => {
+  nextOnes.forEach((m, i) => {
+    const futureIdx  = currentIdx + 1 + i;
     const card       = document.createElement('div');
-    card.className   = 'upcoming-card';
+    card.className   = 'upcoming-card cursor-pointer hover:shadow-md transition-shadow';
     const highlights = [
       ...(m.domains.gross    || []).slice(0, 1),
       ...(m.domains.language || []).slice(0, 1),
@@ -533,8 +534,15 @@ function renderUpcoming(currentIdx) {
       <div class="uc-month">${m.stageLabel}</div>
       <ul>${highlights.map(h => `<li>${h}</li>`).join('')}</ul>
     `;
+    card.addEventListener('click', () => onUpcomingCardClick(futureIdx));
     grid.appendChild(card);
   });
+}
+
+function onUpcomingCardClick(futureIdx) {
+  const age = calcAge(localStorage.getItem('baby_dob'));
+  renderTodoCard(futureIdx, age, 'future');
+  document.getElementById('todo-card')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 // ─────────────────────────────────────────
@@ -580,11 +588,6 @@ function onPastCardClick(pastIdx) {
 
   renderTodoCard(pastIdx, age, type);
   document.getElementById('todo-card')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-  // 更新時間軸節點的 active 狀態
-  if (d3Timeline) {
-    d3Timeline.setActive(pastIdx);
-  }
 }
 
 // ─────────────────────────────────────────
