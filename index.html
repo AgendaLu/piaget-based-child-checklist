@@ -749,6 +749,7 @@
       <div class="font-mono text-sm sm:text-lg font-semibold" id="display-age">0m 0w</div>
       <div class="text-xs opacity-85 hidden sm:block" id="display-age-exact">0個月 0週</div>
     </div>
+    <button onclick="shareProgress()" class="px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-lg hover:bg-ink-soft transition-colors whitespace-nowrap">分享</button>
     <button onclick="changeProfile()" class="px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-lg hover:bg-ink-soft transition-colors whitespace-nowrap">更改資料</button>
   </div>
 
@@ -859,6 +860,17 @@
 
 </div>
 
+<!-- ══════════════════════════════════════
+     SHARE IMPORT MODAL / TOAST
+     ══════════════════════════════════════ -->
+<div id="share-modal-overlay" class="share-overlay hidden"></div>
+<div id="share-modal" class="share-modal hidden" role="dialog" aria-modal="true" aria-labelledby="share-modal-title">
+  <h3 id="share-modal-title" class="share-modal-title"></h3>
+  <div id="share-modal-body" class="share-modal-body"></div>
+  <div id="share-modal-actions" class="share-modal-actions"></div>
+</div>
+<div id="share-toast" class="share-toast hidden" role="status"></div>
+
 <!-- D3 库 -->
 <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
 
@@ -869,6 +881,7 @@
       const appModule = await import('./app.js');
       const drawerModule = await import('./drawer.js');
       const timelineModule = await import('./timeline.js');
+      await import('./share.js');  // 掛載 window.shareProgress 並處理 #s= 分享連結
 
       window.saveAndStart = appModule.saveAndStart;
       window.changeProfile = appModule.changeProfile;
