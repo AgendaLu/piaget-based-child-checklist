@@ -19,6 +19,10 @@ let d3Timeline = null;  // D3Timeline 實例
 // checks_{idx}  → { "gross_0": { state: "normal"|"retro"|"intermediate"|false, date: "2024-01-15" }, ... }
 // 狀態值：false = 未勾選，"normal" = 按時完成，"retro" = 事後補填，"intermediate" = 超時補填（延遲）
 // 新增date欄位以判斷是否超過時間範圍
+// data_ts       → 本地資料最後更新時間（epoch 毫秒），share.js 匯入分享連結時用來比對新舊
+export function touchDataTs() {
+  localStorage.setItem('data_ts', String(Date.now()));
+}
 
 // ─────────────────────────────────────────
 // 工具函式
@@ -103,6 +107,7 @@ export function saveAndStart() {
   if (!name || !dob) { alert('請填寫寶寶的名字與出生日期'); return; }
   localStorage.setItem('baby_name', name);
   localStorage.setItem('baby_dob',  dob);
+  touchDataTs();
   initApp();
 }
 
@@ -404,6 +409,7 @@ export function renderTodoCard(idx, age, type) {
           cur[itemKey] = { state: judgeAchievement(dob, today, idx, key, i), date: today };
         }
         localStorage.setItem(checkKey, JSON.stringify(cur));
+        touchDataTs();
         renderTodoCard(idx, age, type);
         renderTimeline(currentMilestoneIndex);
       };
@@ -599,6 +605,7 @@ export function resetChecks() {
   const age = calcAge(dob);
   const idx = getMilestoneIndex(age.months);
   localStorage.removeItem(`checks_${idx}`);
+  touchDataTs();
   renderTodoCard(idx, age, 'current');
   renderTimeline(idx);
 }
